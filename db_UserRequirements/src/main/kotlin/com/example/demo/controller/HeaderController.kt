@@ -5,7 +5,6 @@ import com.example.demo.service.HeaderService
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.ResponseEntity
 import org.springframework.http.HttpStatus
-import com.example.demo.DTO.CreateHeaderDTO
 
 @RestController
 @RequestMapping("/headers")
