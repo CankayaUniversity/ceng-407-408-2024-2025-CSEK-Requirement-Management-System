@@ -16,7 +16,7 @@ class UserRequirementController(
 
     @PostMapping
     fun createRequirement(@RequestBody dto: CreateRequirementDTO): ResponseEntity<UserRequirements> {
-        val saved = requirementService.createRequirement(dto.title, dto.description, dto.userId, dto.flag)
+        val saved = requirementService.createRequirement(dto.title, dto.description, dto.createdBy, dto.flag)
         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
     }
 
