@@ -1,17 +1,32 @@
 package com.example.demo.controller
 
-import com.example.demo.dto.CreateHeaderDTO
 import com.example.demo.model.Header
 import com.example.demo.service.HeaderService
 import org.springframework.web.bind.annotation.*
+import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
+import com.example.demo.DTO.CreateHeaderDTO
 
 @RestController
 @RequestMapping("/headers")
 class HeaderController(
     private val headerService: HeaderService
 ) {
+
     @PostMapping
-    fun createHeader(@RequestBody createHeaderDTO: CreateHeaderDTO): Header {
-        return headerService.createHeader(createHeaderDTO)
+    fun createHeader(
+        @RequestBody request: CreateHeaderDTO
+    ): ResponseEntity<Header> {
+        val saved = headerService.createHeader(request.header)
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved)
+    }
+
+    @GetMapping
+    fun getAllHeaders(): List<Header> {
+        return headerService.getAllHeaders()
     }
 }
+
+data class CreateHeaderDTO(
+    val header: String
+)
