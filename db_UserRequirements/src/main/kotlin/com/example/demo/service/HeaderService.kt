@@ -1,6 +1,6 @@
 package com.example.demo.service
 
-import com.example.demo.dto.CreateHeaderDTO
+import com.example.demo.DTO.CreateHeaderDTO
 import com.example.demo.model.Header
 import com.example.demo.repository.HeaderRepository
 import org.springframework.stereotype.Service
@@ -11,10 +11,14 @@ class HeaderService(
     private val headerRepository: HeaderRepository
 ) {
     @Transactional
-    fun createHeader(createHeaderDTO: CreateHeaderDTO): Header {
-        val header = Header(
-            header = createHeaderDTO.header
+    fun createHeader(header: String): Header {
+        val headerEntity = Header(
+            header = header
         )
-        return headerRepository.save(header)
+        return headerRepository.save(headerEntity)
+    }
+
+    fun getAllHeaders(): List<Header> {
+        return headerRepository.findAll()
     }
 }
