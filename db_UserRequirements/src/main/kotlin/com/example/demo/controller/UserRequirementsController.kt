@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import com.example.demo.service.RequirementService
-import com.example.demo.DTO.CreateRequirementDTO
 
 
 @RestController
@@ -26,3 +25,10 @@ class UserRequirementController(
     }
 }
 
+
+data class CreateRequirementDTO(
+    val title: String,
+    val description: String,
+    val createdBy: String,
+    val flag: Boolean
+)
