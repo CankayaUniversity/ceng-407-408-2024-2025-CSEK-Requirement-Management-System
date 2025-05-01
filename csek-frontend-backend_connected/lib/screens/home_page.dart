@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import '../widgets/custom_app_bar.dart';
 import '../services/api_service.dart';
 
+// Bu dosya, Flutter'da Gereksinim Yönetimi Arayüzü sunar.
 
-enum RequirementType {
-  kullanici,
-  sistem,
-  altBaslik,
-}
+enum RequirementType { kullanici, sistem, altBaslik }
 
 class Requirement {
+  final String title;
   final String id;
   String description;
 
-  Requirement({required this.id, required this.description});
+  Requirement({required this.title, required this.id, required this.description});
 }
 
 class HomePage extends StatefulWidget {
@@ -24,30 +22,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   RequirementType selectedType = RequirementType.kullanici;
 
   List<String> kolonBasliklari = [];
   Map<String, List<String>> kolonVerileri = {};
-
-  List<Requirement> kullaniciGereksinimleri = [
-    Requirement(id: 'KG-1', description: 'İlk Kullanıcı Gereksiniminin Açıklaması'),
-    Requirement(id: 'KG-2', description: 'İkinci Kullanıcı Gereksiniminin Açıklaması'),
-    Requirement(id: 'KG-3', description: 'Üçüncü Kullanıcı Gereksiniminin Açıklaması'),
-  ];
-
-  List<Requirement> sistemGereksinimleri = [
-    Requirement(id: 'SG-1', description: 'İlk Sistem Gereksinimi'),
-  ];
-
-  List<Requirement> altBaslikGereksinimleri = [
-    Requirement(id: 'AB-1', description: 'İlk Alt Başlık Gereksinimi'),
-  ];
-
+  List<Requirement> kullaniciGereksinimleri = [];
+  List<Requirement> sistemGereksinimleri = [];
+  List<Requirement> altBaslikGereksinimleri = [];
   Map<String, List<String>> requirementBaglantilari = {};
 
   String searchQuery = '';
-
   bool isLoading = true;
 
   @override
@@ -57,75 +41,88 @@ class _HomePageState extends State<HomePage> {
   }
 
   void fetchAllRequirements() async {
+    setState(() => isLoading = true);
     try {
       final userReqs = await ApiService.fetchUserRequirements();
-      final systemReqs = await ApiService.fetchSystemRequirements();
-      final subReqs = await ApiService.fetchSubRequirements();
-
       setState(() {
         kullaniciGereksinimleri = userReqs
-            .where((item) => item['id'] != null && item['id'].toString().startsWith('KG'))
+            .where((item) => item['id'] != null)
             .map<Requirement>((item) => Requirement(
-          id: item['id'],
-          description: item['description'] ?? '',
-        ))
+            title: item['title'],
+            description: item['description'] ?? '',
+            id: item['id']))
             .toList();
+      });
+    } catch (e) {
+      print('Kullanıcı gereksinimleri alınırken hata: $e');
+    }
 
+    try {
+      final systemReqs = await ApiService.fetchSystemRequirements();
+      setState(() {
         sistemGereksinimleri = systemReqs
             .where((item) => item['id'] != null && item['id'].toString().startsWith('SG'))
             .map<Requirement>((item) => Requirement(
-          id: item['id'],
-          description: item['description'] ?? '',
-        ))
+            title: item['title'],
+            description: item['description'] ?? '',
+            id: item['id']))
             .toList();
+      });
+    } catch (e) {
+      print('Sistem gereksinimleri alınırken hata: $e');
+    }
 
+    try {
+      final subReqs = await ApiService.fetchSubRequirements();
+      setState(() {
         altBaslikGereksinimleri = subReqs
             .where((item) => item['id'] != null && item['id'].toString().startsWith('AB'))
             .map<Requirement>((item) => Requirement(
-          id: item['id'],
-          description: item['description'] ?? '',
-        ))
+            title: item['title'],
+            description: item['description'] ?? '',
+            id: item['id']))
             .toList();
-
-        isLoading = false;
       });
     } catch (e) {
-      print('Veri çekme hatası: $e');
-      setState(() {
-        isLoading = false;
-      });
+      print('Alt başlık gereksinimleri alınırken hata: $e');
     }
 
     try {
       final headers = await ApiService.fetchHeaders();
-      final attributes = await ApiService.fetchAttributes();
-
-      // Kolonları oluştur
-      for (var header in headers) {
-        final h = header['header'] ?? '';
-        kolonBasliklari.add(h);
-        kolonVerileri[h] = List.filled(kullaniciGereksinimleri.length, '', growable: true);
-      }
-
-      // Hücreleri doldur
-      for (var attr in attributes) {
-        final h = attr['header'];
-        final rid = attr['userRequirementId'];
-        final val = attr['description'] ?? '';
-
-        final index = kullaniciGereksinimleri.indexWhere((r) => r.id == rid);
-        if (index != -1 && kolonVerileri[h] != null) {
-          kolonVerileri[h]![index] = val;
+      setState(() {
+        for (var header in headers) {
+          final h = header['header'] ?? '';
+          if (!kolonBasliklari.contains(h)) {
+            kolonBasliklari.add(h);
+            kolonVerileri[h] = List.filled(kullaniciGereksinimleri.length, '', growable: true);
+          }
         }
-      }
+      });
     } catch (e) {
-      print('Headers/Attributes yüklenirken hata: $e');
+      print('Header bilgileri alınırken hata: $e');
     }
 
+    try {
+      final attributes = await ApiService.fetchAttributes();
+      setState(() {
+        for (var attr in attributes) {
+          final h = attr['header']?.toString().trim();
+          final rid = attr['userRequirementId']?.toString();
+          final val = attr['description']?.toString() ?? '';
+          if (h == null || rid == null) continue;
+          final index = kullaniciGereksinimleri.indexWhere((r) => r.id == rid);
+          if (index == -1) continue;
+          kolonVerileri.putIfAbsent(h, () => List.filled(kullaniciGereksinimleri.length, '', growable: true));
+          if (!kolonBasliklari.contains(h)) kolonBasliklari.add(h);
+          kolonVerileri[h]![index] = val;
+        }
+      });
+    } catch (e) {
+      print('Attribute bilgileri alınırken hata: $e');
+    }
 
+    setState(() => isLoading = false);
   }
-
-
 
   List<Requirement> get currentList {
     switch (selectedType) {
@@ -140,24 +137,17 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Requirement> filteredList = currentList.where((req) {
-      return req.description.toLowerCase().contains(searchQuery);
-    }).toList();
+    final filteredList = currentList.where((req) => req.description.toLowerCase().contains(searchQuery)).toList();
 
     return Scaffold(
       appBar: CustomAppBar(
-        onModuleSelected: (type) {
-          setState(() {
-            selectedType = type;
-          });
-        },
+        onModuleSelected: (type) => setState(() => selectedType = type),
         onAddColumn: _showAddColumnDialog,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
-          // 🔍 Arama Kutusu
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -166,140 +156,125 @@ class _HomePageState extends State<HomePage> {
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.toLowerCase();
-                });
-              },
+              onChanged: (value) => setState(() => searchQuery = value.toLowerCase()),
             ),
           ),
-
-          // Kolon Başlıkları
-          Row(
-            children: [
-              const SizedBox(width: 120),
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('      ', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ),
-              for (final kolon in kolonBasliklari)
-                Container(
-                  width: 120,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(kolon, style: const TextStyle(fontWeight: FontWeight.bold)),
-                ),
-            ],
-          ),
-
-          // Liste
-          Expanded(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 60,
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 40),
-                      IconButton(
-                        icon: const Icon(Icons.tune, size: 28),
-                        onPressed: () {
-                          print('Ayar butonuna tıklandı');
-                        },
-                      ),
-                    ],
+                const SizedBox(width: 120),
+                for (final kolon in kolonBasliklari)
+                  Container(
+                    width: 120,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      kolon,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 16),
-                    itemCount: filteredList.length * 2 + 1,
-                    itemBuilder: (context, index) {
-                      if (index.isEven) {
-                        final insertIndex = index ~/ 2;
-                        return Row(
-                          children: [
-                            Container(
-                              width: 120,
-                              height: 36,
-                              alignment: Alignment.center,
-                              child: IconButton(
-                                icon: const Icon(Icons.add_circle_outline, size: 20),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(minHeight: 24, minWidth: 24),
-                                onPressed: () {
-                                  _showAddRequirementDialog(insertIndex);
-                                },
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 16),
+              itemCount: filteredList.length * 2 + 1,
+              itemBuilder: (context, index) {
+                if (index.isEven) {
+                  final insertIndex = index ~/ 2;
+                  return Row(
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 36,
+                        alignment: Alignment.center,
+                        child: IconButton(
+                          icon: const Icon(Icons.add_circle_outline, size: 20),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minHeight: 24, minWidth: 24),
+                          onPressed: () => _showAddRequirementDialog(insertIndex),
+                        ),
+                      ),
+                      const Expanded(child: SizedBox.shrink()),
+                    ],
+                  );
+                } else {
+                  final reqIndex = index ~/ 2;
+                  final item = filteredList[reqIndex];
+                  final originalIndex = kullaniciGereksinimleri.indexWhere((r) => r.id == item.id);
+
+                  return GestureDetector(
+                    onSecondaryTapDown: (details) => _showRequirementContextMenu(details.globalPosition, item, originalIndex),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 70,
+                            color: Colors.grey[400],
+                            alignment: Alignment.center,
+                            child: Text(item.title),
+                          ),
+                          Container(
+                            width: 240,
+                            padding: const EdgeInsets.all(16.0),
+                            child: Tooltip(
+                              message: item.description,
+                              child: Text(
+                                item.description.length > 40
+                                    ? item.description.substring(0, 40) + '...'
+                                    : item.description,
                               ),
                             ),
-                            const Expanded(child: SizedBox.shrink()),
-                          ],
-                        );
-                      } else {
-                        final reqIndex = index ~/ 2;
-                        final item = filteredList[reqIndex];
-                        return GestureDetector(
-                          onSecondaryTapDown: (details) {
-                            _showRequirementContextMenu(details.globalPosition, item, reqIndex);
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 120,
-                                  height: 70,
-                                  color: Colors.grey[400],
-                                  alignment: Alignment.center,
-                                  child: Text(item.id),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(item.description),
-                                  ),
-                                ),
-                                for (final kolon in kolonBasliklari)
-                                  Container(
-                                    width: 120,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      border: Border(left: BorderSide(color: Colors.black)),
-                                    ),
-                                    child: kolonVerileri[kolon]![reqIndex].isEmpty
-                                        ? IconButton(
-                                      icon: const Icon(Icons.add_circle_outline),
-                                      onPressed: () {
-                                        _showCellInputDialog(kolon, reqIndex);
-                                      },
-                                    )
-                                        : Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(kolonVerileri[kolon]![reqIndex]),
-                                    ),
-                                  ),
-                              ],
-                            ),
                           ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
+                          for (final kolon in kolonBasliklari)
+                            Container(
+                              width: 120,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border(left: BorderSide(color: Colors.black)),
+                              ),
+                              child: kolonVerileri[kolon]![originalIndex].isEmpty
+                                  ? IconButton(
+                                icon: const Icon(Icons.add_circle_outline),
+                                onPressed: () => _showCellInputDialog(kolon, originalIndex),
+                              )
+                                  : Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Tooltip(
+                                  message: kolonVerileri[kolon]![originalIndex],
+                                  child: Text(
+                                    kolonVerileri[kolon]![originalIndex].length > 40
+                                        ? kolonVerileri[kolon]![originalIndex].substring(0, 40) + '...'
+                                        : kolonVerileri[kolon]![originalIndex],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
       ),
     );
   }
+
+
+
+
 
 
   void _showAddRequirementDialog(int insertIndex) {
@@ -336,7 +311,7 @@ class _HomePageState extends State<HomePage> {
                 // Başarılıysa listeyi güncelle
                 setState(() {
                   final newId = '$prefix-${currentList.length + 1}';
-                  currentList.insert(insertIndex, Requirement(id: newId, description: descriptionInput));
+                  currentList.insert(insertIndex, Requirement(title: newId, description: descriptionInput,id: '0'));
                   for (var kolon in kolonBasliklari) {
                     kolonVerileri[kolon]!.insert(insertIndex, '');
                   }
@@ -476,7 +451,7 @@ class _HomePageState extends State<HomePage> {
         }
       });
     } else if (selected == 'baglantilari_goster') {
-      _showBaglantilarDialog(item.id);
+      _showBaglantilarDialog(item.title);
     }
   }
 
@@ -506,11 +481,11 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               final target = otherList[index];
               return ListTile(
-                title: Text('${target.id} - ${target.description}'),
+                title: Text('${target.title} - ${target.description}'),
                 onTap: () {
                   setState(() {
-                    final sourceId = isFromOtherToThis ? target.id : sourceReq.id;
-                    final targetId = isFromOtherToThis ? sourceReq.id : target.id;
+                    final sourceId = isFromOtherToThis ? target.title : sourceReq.title;
+                    final targetId = isFromOtherToThis ? sourceReq.title : target.title;
                     requirementBaglantilari.putIfAbsent(sourceId, () => []);
                     if (!requirementBaglantilari[sourceId]!.contains(targetId)) {
                       requirementBaglantilari[sourceId]!.add(targetId);
