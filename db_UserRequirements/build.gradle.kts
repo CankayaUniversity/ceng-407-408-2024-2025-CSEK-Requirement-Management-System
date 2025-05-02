@@ -16,6 +16,7 @@ java {
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://repo.spring.io/release") }
 }
 
 dependencies {
@@ -39,4 +40,9 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.1")
+	}
 }
