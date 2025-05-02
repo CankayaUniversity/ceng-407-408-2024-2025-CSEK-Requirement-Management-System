@@ -5,10 +5,19 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/demo" />
-        <option name="gradleJvm" value="#JAVA_HOME" />
+        <option name="gradleJvm" value="ms-21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/demo" />
+          </set>
+        </option>
+        <option name="resolveExternalAnnotations" value="true" />
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/demo (4)" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/demo (4)" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -17,4 +17,24 @@ class HeaderService(
         )
         return headerRepository.save(header)
     }
+
+    @Transactional
+    fun updateHeader(oldHeader: String, updatedDTO: SubsystemHeaderDTO): Subsystem1Header {
+        val existing = headerRepository.findById(oldHeader)
+            .orElseThrow { NoSuchElementException("Header not found: $oldHeader") }
+
+
+        headerRepository.delete(existing)
+        val updated = Subsystem1Header(header = updatedDTO.header)
+        return headerRepository.save(updated)
+    }
+
+    @Transactional
+    fun deleteHeader(header: String) {
+        if (!headerRepository.existsById(header)) {
+            throw NoSuchElementException("Header not found: $header")
+        }
+        headerRepository.deleteById(header)
+    }
 }
+

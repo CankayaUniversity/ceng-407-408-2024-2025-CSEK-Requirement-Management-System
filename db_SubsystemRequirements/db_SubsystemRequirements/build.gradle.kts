@@ -39,3 +39,8 @@ kotlin {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+sourceSets {
+	main {
+		kotlin.srcDirs("src/main/kotlin")
+	}
+}

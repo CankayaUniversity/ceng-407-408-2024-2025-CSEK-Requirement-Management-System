@@ -5,6 +5,7 @@ import com.example.demo.model.Subsystem1Attribute
 import com.example.demo.repository.Subsystem1AttributeRepository
 import com.example.demo.repository.SubsystemRepository
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class Subsystem1AttributeService(
@@ -33,6 +34,7 @@ class Subsystem1AttributeService(
             subsystem1Id = subsystem.id!!
         )
     }
+
     fun getAllAttributes(): List<Subsystem1AttributeDTO> {
         return attributeRepository.findAll().map {
             Subsystem1AttributeDTO(
@@ -45,4 +47,35 @@ class Subsystem1AttributeService(
         }
     }
 
+    fun updateAttribute(id: UUID, dto: Subsystem1AttributeDTO): Subsystem1AttributeDTO {
+        val existing = attributeRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Attribute not found: $id") }
+
+        val subsystem = subsystem1Repository.findById(dto.subsystem1Id!!)
+            .orElseThrow { IllegalArgumentException("Subsystem1 is not found") }
+
+        val updated = existing.copy(
+            title = dto.title,
+            reqId = dto.reqId!!,
+            definition = dto.definition,
+            subsystem1 = subsystem
+        )
+
+        return attributeRepository.save(updated).let {
+            Subsystem1AttributeDTO(
+                id = it.id,
+                title = it.title,
+                reqId = it.reqId,
+                definition = it.definition,
+                subsystem1Id = it.subsystem1?.id!!
+            )
+        }
+    }
+
+    fun deleteAttribute(id: UUID) {
+        if (!attributeRepository.existsById(id)) {
+            throw NoSuchElementException("Attribute not found: $id")
+        }
+        attributeRepository.deleteById(id)
+    }
 }
