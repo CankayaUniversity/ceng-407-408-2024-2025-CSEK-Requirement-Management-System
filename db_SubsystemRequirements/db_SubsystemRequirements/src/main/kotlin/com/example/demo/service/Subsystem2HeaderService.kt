@@ -1,7 +1,7 @@
 package com.example.demo.service
 
 import com.example.demo.DTO.Subsystem2HeaderDTO
-import com.example.demo.model.Subsytem2Header
+import com.example.demo.model.Subsystem2Header
 import com.example.demo.repository.Header2Repository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -12,20 +12,20 @@ class Subsystem2HeaderService(
 ) {
 
     @Transactional
-    fun createHeader(createHeaderDTO: Subsystem2HeaderDTO): Subsytem2Header {
-        val header = Subsytem2Header(
+    fun createHeader(createHeaderDTO: Subsystem2HeaderDTO): Subsystem2Header {
+        val header = Subsystem2Header(
             header = createHeaderDTO.header
         )
         return headerRepository.save(header)
     }
 
     @Transactional
-    fun updateHeader(oldHeader: String, updatedDTO: Subsystem2HeaderDTO): Subsytem2Header {
+    fun updateHeader(oldHeader: String, updatedDTO: Subsystem2HeaderDTO): Subsystem2Header {
         val existing = headerRepository.findById(oldHeader)
             .orElseThrow { NoSuchElementException("Header not found: $oldHeader") }
 
         headerRepository.delete(existing)
-        val updated = Subsytem2Header(header = updatedDTO.header)
+        val updated = Subsystem2Header(header = updatedDTO.header)
         return headerRepository.save(updated)
     }
 

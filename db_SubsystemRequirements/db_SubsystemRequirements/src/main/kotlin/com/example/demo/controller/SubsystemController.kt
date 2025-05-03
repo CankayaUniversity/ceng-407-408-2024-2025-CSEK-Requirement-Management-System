@@ -1,14 +1,14 @@
 package com.example.demo.controller
 
 import com.example.demo.DTO.Subsystem1_DTO
-import com.example.demo.service.SubsystemService
+import com.example.demo.service.Subsystem1Service
 import org.springframework.web.bind.annotation.*
 import java.util.UUID
 
 @RestController
 @RequestMapping("/subsystem1")
 class SubsystemController(
-    private val subsystemService: SubsystemService
+    private val subsystemService: Subsystem1Service
 ) {
 
     @GetMapping

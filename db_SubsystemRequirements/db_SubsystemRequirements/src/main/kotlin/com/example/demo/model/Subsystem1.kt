@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.util.UUID
 
 @Entity
-data class Subsystem(
+data class Subsystem1(
     @Id
     @GeneratedValue
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")

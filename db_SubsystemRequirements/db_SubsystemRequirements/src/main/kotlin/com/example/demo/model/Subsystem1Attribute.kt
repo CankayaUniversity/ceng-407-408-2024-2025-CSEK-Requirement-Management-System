@@ -20,5 +20,5 @@ data class Subsystem1Attribute(
 
     @ManyToOne
     @JoinColumn(name = "subsystem1_id")
-    val subsystem1: Subsystem? = null
+    val subsystem1: Subsystem1? = null
 )

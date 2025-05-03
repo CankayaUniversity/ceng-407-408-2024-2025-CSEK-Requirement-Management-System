@@ -1,10 +1,11 @@
 package com.example.demo.model
 
+
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "subsytem3headers")
-data class Subsytem3Header(
+@Table(name = "subsystem2header")
+data class Subsystem2Header(
 
     @Id
     @Column(name = "header", nullable = false)

@@ -3,8 +3,8 @@ package com.example.demo.model
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "subsytem1header")
-data class Subsystem1Header(
+@Table(name = "subsystem3header")
+data class Subsystem3Header(
 
     @Id
     @Column(name = "header", nullable = false)

@@ -1,18 +1,18 @@
 package com.example.demo.service
 
 import com.example.demo.DTO.Subsystem1_DTO
-import com.example.demo.model.Subsystem
+import com.example.demo.model.Subsystem1
 import com.example.demo.repository.SubsystemRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class SubsystemService(
+class Subsystem1Service(
     private val subsystemRepository: SubsystemRepository
 ) {
 
     fun createSubsystem(dto: Subsystem1_DTO): Subsystem1_DTO {
-        val entity = Subsystem(
+        val entity = Subsystem1(
             id = null,
             title = dto.title,
             definition = dto.definition,
