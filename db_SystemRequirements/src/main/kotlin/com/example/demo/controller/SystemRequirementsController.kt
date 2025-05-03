@@ -59,6 +59,6 @@ data class CreateSystemRequirementDTO(
     val title: String,
     val description: String,
     val createdBy: String,
-    val userRequirementId: UUID,
+    val user_req_id: UUID,
     val flag: Boolean
 )
