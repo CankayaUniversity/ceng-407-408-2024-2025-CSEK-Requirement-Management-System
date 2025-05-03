@@ -14,7 +14,7 @@ class Subsystem1RequirementChangeLogService(
 
     fun create(dto: Subsystem1RequirementChangeLogDTO): Subsystem1RequirementChangeLogDTO {
         val entity = Subsystem1RequirementChangeLog(
-            id = UUID.randomUUID(),
+            id = null,
             modifiedBy = dto.modifiedBy ?: "unknown",
             oldTitle = dto.oldTitle ?: "",
             oldDefinition = dto.oldDefinition ?: "",
@@ -31,6 +31,29 @@ class Subsystem1RequirementChangeLogService(
         return repository.findAll().map { it.toDTO() }
     }
 
+    fun update(id: UUID, dto: Subsystem1RequirementChangeLogDTO): Subsystem1RequirementChangeLogDTO {
+        val existing = repository.findById(id)
+            .orElseThrow { NoSuchElementException("ChangeLog not found for id: $id") }
+
+        val updated = existing.copy(
+            modifiedBy = dto.modifiedBy ?: existing.modifiedBy,
+            oldTitle = dto.oldTitle ?: existing.oldTitle,
+            oldDefinition = dto.oldDefinition ?: existing.oldDefinition,
+            requirementId = dto.requirementId ?: existing.requirementId,
+            header = dto.header ?: existing.header,
+            oldAttributeDefinition = dto.oldAttributeDefinition ?: existing.oldAttributeDefinition,
+            modifiedAt = dto.modifiedAt ?: LocalDateTime.now()
+        )
+
+        return repository.save(updated).toDTO()
+    }
+
+    fun delete(id: UUID) {
+        if (!repository.existsById(id)) {
+            throw NoSuchElementException("ChangeLog not found for id: $id")
+        }
+        repository.deleteById(id)
+    }
 
     private fun Subsystem1RequirementChangeLog.toDTO(): Subsystem1RequirementChangeLogDTO {
         return Subsystem1RequirementChangeLogDTO(
@@ -45,3 +68,4 @@ class Subsystem1RequirementChangeLogService(
         )
     }
 }
+

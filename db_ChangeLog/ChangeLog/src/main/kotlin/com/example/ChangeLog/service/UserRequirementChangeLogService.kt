@@ -14,7 +14,7 @@ class UserRequirementChangeLogService(
 
     fun create(dto: UserRequirementChangeLogDTO): UserRequirementChangeLogDTO {
         val entity = UserRequirementChangeLog(
-            id = UUID.randomUUID(),
+            id = null,
             modifiedBy = dto.modifiedBy ?: "unknown",
             oldTitle = dto.oldTitle ?: "",
             oldDefinition = dto.oldDefinition ?: "",
@@ -31,6 +31,29 @@ class UserRequirementChangeLogService(
         return repository.findAll().map { it.toDTO() }
     }
 
+    fun update(id: UUID, dto: UserRequirementChangeLogDTO): UserRequirementChangeLogDTO {
+        val existing = repository.findById(id)
+            .orElseThrow { NoSuchElementException("ChangeLog not found with id: $id") }
+
+        val updated = existing.copy(
+            modifiedBy = dto.modifiedBy ?: existing.modifiedBy,
+            oldTitle = dto.oldTitle ?: existing.oldTitle,
+            oldDefinition = dto.oldDefinition ?: existing.oldDefinition,
+            requirementId = dto.requirementId ?: existing.requirementId,
+            header = dto.header ?: existing.header,
+            oldAttributeDefinition = dto.oldAttributeDefinition ?: existing.oldAttributeDefinition,
+            modifiedAt = dto.modifiedAt ?: LocalDateTime.now()
+        )
+
+        return repository.save(updated).toDTO()
+    }
+
+    fun delete(id: UUID) {
+        if (!repository.existsById(id)) {
+            throw NoSuchElementException("ChangeLog not found with id: $id")
+        }
+        repository.deleteById(id)
+    }
 
     private fun UserRequirementChangeLog.toDTO(): UserRequirementChangeLogDTO {
         return UserRequirementChangeLogDTO(
