@@ -14,7 +14,8 @@ class SystemRequirementsService(
         title: String,
         description: String,
         createdBy: String,
-        userRequirementId: UUID
+        userRequirementId: UUID,
+        flag: Boolean
     ): SystemRequirements {
         val requirement = SystemRequirements(
             title = title,

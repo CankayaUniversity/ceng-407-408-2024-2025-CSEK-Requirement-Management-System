@@ -17,10 +17,11 @@ class SystemRequirementController(
     @PostMapping
     fun createSystemRequirement(@RequestBody dto: CreateSystemRequirementDTO): ResponseEntity<SystemRequirements> {
         val saved = systemRequirementService.createSystemRequirement(
-            title = dto.title,
-            description = dto.description,
-            createdBy = dto.createdBy,
-            userRequirementId = dto.userRequirementId
+            dto.title,
+            dto.description,
+            dto.createdBy,
+            dto.userRequirementId,
+            dto.flag
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
     }
@@ -58,5 +59,6 @@ data class CreateSystemRequirementDTO(
     val title: String,
     val description: String,
     val createdBy: String,
-    val userRequirementId: UUID
+    val userRequirementId: UUID,
+    val flag: Boolean
 )
