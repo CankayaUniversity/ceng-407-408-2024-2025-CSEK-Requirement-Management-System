@@ -1,6 +1,6 @@
 package com.example.demo.controller
 
-import com.example.demo.DTO.SubsystemHeaderDTO
+import com.example.demo.DTO.Subsystem1HeaderDTO
 import com.example.demo.model.Subsystem1Header
 import com.example.demo.service.HeaderService
 import org.springframework.web.bind.annotation.*
@@ -12,14 +12,14 @@ class HeaderController(
 ) {
 
     @PostMapping
-    fun createHeader(@RequestBody createHeaderDTO: SubsystemHeaderDTO): Subsystem1Header {
+    fun createHeader(@RequestBody createHeaderDTO: Subsystem1HeaderDTO): Subsystem1Header {
         return headerService.createHeader(createHeaderDTO)
     }
 
     @PutMapping("/{oldHeader}")
     fun updateHeader(
         @PathVariable oldHeader: String,
-        @RequestBody updatedDTO: SubsystemHeaderDTO
+        @RequestBody updatedDTO: Subsystem1HeaderDTO
     ): Subsystem1Header {
         return headerService.updateHeader(oldHeader, updatedDTO)
     }

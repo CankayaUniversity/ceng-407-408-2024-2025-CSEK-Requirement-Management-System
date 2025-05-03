@@ -1,6 +1,6 @@
 package com.example.demo.service
 
-import com.example.demo.DTO.SubsystemHeaderDTO
+import com.example.demo.DTO.Subsystem1HeaderDTO
 import com.example.demo.model.Subsystem1Header
 import com.example.demo.repository.HeaderRepository
 import org.springframework.stereotype.Service
@@ -11,7 +11,7 @@ class HeaderService(
     private val headerRepository: HeaderRepository
 ) {
     @Transactional
-    fun createHeader(createHeaderDTO: SubsystemHeaderDTO): Subsystem1Header {
+    fun createHeader(createHeaderDTO: Subsystem1HeaderDTO): Subsystem1Header {
         val header = Subsystem1Header(
             header = createHeaderDTO.header
         )
@@ -19,7 +19,7 @@ class HeaderService(
     }
 
     @Transactional
-    fun updateHeader(oldHeader: String, updatedDTO: SubsystemHeaderDTO): Subsystem1Header {
+    fun updateHeader(oldHeader: String, updatedDTO: Subsystem1HeaderDTO): Subsystem1Header {
         val existing = headerRepository.findById(oldHeader)
             .orElseThrow { NoSuchElementException("Header not found: $oldHeader") }
 

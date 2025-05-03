@@ -7,7 +7,7 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/subsystem1")
-class SubsystemController(
+class Subsystem1Controller(
     private val subsystemService: Subsystem1Service
 ) {
 

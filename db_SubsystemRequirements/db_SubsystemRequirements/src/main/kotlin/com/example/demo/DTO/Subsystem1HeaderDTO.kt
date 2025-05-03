@@ -1,6 +1,6 @@
 package com.example.demo.DTO
 
-data class SubsystemHeaderDTO(
+data class Subsystem1HeaderDTO(
     val header: String,
 
 )
