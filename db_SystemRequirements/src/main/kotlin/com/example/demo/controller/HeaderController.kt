@@ -24,6 +24,21 @@ class HeaderController(
     fun getAllHeaders(): List<Header> {
         return headerService.getAllHeaders()
     }
+
+    @PutMapping("/{oldHeader}")
+    fun updateHeader(
+        @PathVariable oldHeader: String,
+        @RequestBody request: CreateHeaderDTO
+    ): ResponseEntity<Header> {
+        val updated = headerService.updateHeader(oldHeader, request.header)
+        return ResponseEntity.ok(updated)
+    }
+
+    @DeleteMapping("/{header}")
+    fun deleteHeader(@PathVariable header: String): ResponseEntity<Void> {
+        headerService.deleteHeader(header)
+        return ResponseEntity.noContent().build()
+    }
 }
 
 data class CreateHeaderDTO(

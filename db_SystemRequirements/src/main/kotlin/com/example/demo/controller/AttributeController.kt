@@ -18,7 +18,11 @@ class AttributeController(
     fun createAttribute(
         @RequestBody request: CreateAttributeDTO
     ): ResponseEntity<Attribute> {
-        val saved = attributeService.createAttribute(request.header, UUID.fromString(request.systemRequirementId), request.description)
+        val saved = attributeService.createAttribute(
+            header = request.header,
+            systemRequirementId = UUID.fromString(request.systemRequirementId),
+            description = request.description
+        )
         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
     }
 
@@ -26,7 +30,28 @@ class AttributeController(
     fun getAllAttributes(): List<Attribute> {
         return attributeService.getAllAttributes()
     }
+
+    @PutMapping("/{id}")
+    fun updateAttribute(
+        @PathVariable id: UUID,
+        @RequestBody request: CreateAttributeDTO
+    ): ResponseEntity<Attribute> {
+        val updated = attributeService.updateAttribute(
+            id = id,
+            header = request.header,
+            systemRequirementId = UUID.fromString(request.systemRequirementId),
+            description = request.description
+        )
+        return ResponseEntity.ok(updated)
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteAttribute(@PathVariable id: UUID): ResponseEntity<Void> {
+        attributeService.deleteAttribute(id)
+        return ResponseEntity.noContent().build()
+    }
 }
+
 
 data class CreateAttributeDTO(
     val header: String,

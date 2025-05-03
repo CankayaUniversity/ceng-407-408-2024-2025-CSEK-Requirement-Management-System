@@ -1,8 +1,10 @@
 package com.example.demo.DTO
 
+import java.util.UUID
+
 data class CreateSystemRequirementDTO(
     val title: String,
     val description: String,
-    val userRequirementId: Long,
-    val createdByUserId: Long
+    val userRequirementId: UUID,
+    val createdByUserId: UUID
 )

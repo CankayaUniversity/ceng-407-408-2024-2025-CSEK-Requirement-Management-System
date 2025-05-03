@@ -7,7 +7,6 @@ import java.util.UUID
 @Table(name = "system_requirements")
 data class SystemRequirements(
 
-
     @Id
     @GeneratedValue
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
@@ -19,12 +18,12 @@ data class SystemRequirements(
     @Column(columnDefinition = "TEXT")
     val description: String = "",
 
-    @Column(nullable = false, columnDefinition = "TEXT")
-    val createdBy: String = "sarper",
+    @Column( columnDefinition ="TEXT" )
+    val createdBy: String="" ,
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false)
     val flag: Boolean = false,
 
-    @Column(name = "ur_id", updatable = true, nullable = true, columnDefinition = "uuid")
-    val user_req_id: UUID? = null, //null olup olamayacağını sormam lazım
+    @Column(name = "ur_id", nullable = false, columnDefinition = "uuid")
+    val user_req_id: UUID?=null,
 )

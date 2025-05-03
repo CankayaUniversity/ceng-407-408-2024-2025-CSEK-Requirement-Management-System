@@ -1,6 +1,6 @@
+
 package com.example.demo.controller
 
-import com.example.demo.DTO.CreateSystemRequirementDTO
 import com.example.demo.model.SystemRequirements
 import com.example.demo.service.SystemRequirementsService
 import org.springframework.http.HttpStatus
@@ -19,20 +19,44 @@ class SystemRequirementController(
         val saved = systemRequirementService.createSystemRequirement(
             title = dto.title,
             description = dto.description,
-            userId = dto.createdByUserId.toString(), // Long -> String'e çeviriyor
-            ur_id = UUID.fromString(dto.userRequirementId.toString()), // Long -> UUID
-            flag = false
+            createdBy = dto.createdBy,
+            userRequirementId = dto.userRequirementId
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
     }
 
     @GetMapping
-    fun getAll(): List<SystemRequirements> = systemRequirementService.getAllRequirements()
+    fun getAllSystemRequirements(): ResponseEntity<List<SystemRequirements>> {
+        return ResponseEntity.ok(systemRequirementService.getAllRequirements())
+    }
+
+    @PutMapping("/{id}")
+    fun updateSystemRequirement(
+        @PathVariable id: UUID,
+        @RequestBody dto: CreateSystemRequirementDTO
+    ): ResponseEntity<SystemRequirements> {
+        val updated = systemRequirementService.updateSystemRequirement(
+            id,
+            dto.title,
+            dto.description,
+            dto.createdBy,
+            dto.userRequirementId
+        )
+        return ResponseEntity.ok(updated)
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteSystemRequirement(@PathVariable id: UUID): ResponseEntity<Void> {
+        systemRequirementService.deleteSystemRequirement(id)
+        return ResponseEntity.noContent().build()
+    }
 }
+
+
 
 data class CreateSystemRequirementDTO(
     val title: String,
     val description: String,
-    val userRequirementId: UUID,
-    val createdByUserId: String
+    val createdBy: String,
+    val userRequirementId: UUID
 )
