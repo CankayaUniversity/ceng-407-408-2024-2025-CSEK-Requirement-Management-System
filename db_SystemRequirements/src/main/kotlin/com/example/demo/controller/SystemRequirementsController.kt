@@ -20,7 +20,7 @@ class SystemRequirementController(
             dto.title,
             dto.description,
             dto.createdBy,
-            dto.userRequirementId,
+            dto.user_req_id,
             dto.flag
         )
         return ResponseEntity.status(HttpStatus.CREATED).body(saved)
@@ -41,7 +41,8 @@ class SystemRequirementController(
             dto.title,
             dto.description,
             dto.createdBy,
-            dto.userRequirementId
+            dto.user_req_id,
+            dto.flag
         )
         return ResponseEntity.ok(updated)
     }

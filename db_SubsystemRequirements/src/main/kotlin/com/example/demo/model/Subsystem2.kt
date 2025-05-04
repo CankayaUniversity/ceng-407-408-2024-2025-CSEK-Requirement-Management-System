@@ -1,0 +1,24 @@
+package com.example.demo.model
+
+import jakarta.persistence.*
+import java.util.UUID
+
+@Entity
+data class Subsystem2(
+    @Id
+    @GeneratedValue
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "uuid")
+    val id: UUID? = null,
+
+
+    val title: String="",
+    val description: String="",
+    val createdBy: String="",
+
+    @Column(name = "reqid",nullable = false, columnDefinition = "uuid")
+    val systemRequirementId: UUID? = null,
+
+    val flag: Boolean=false,
+
+
+    )

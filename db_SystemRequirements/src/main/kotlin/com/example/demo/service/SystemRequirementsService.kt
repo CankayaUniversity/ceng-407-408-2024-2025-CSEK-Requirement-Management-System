@@ -36,7 +36,8 @@ class SystemRequirementsService(
         title: String,
         description: String,
         createdBy: String,
-        userRequirementId: UUID
+        userRequirementId: UUID,
+        flag: Boolean
     ): SystemRequirements {
         val existing = systemRequirementRepo.findById(id)
             .orElseThrow { NoSuchElementException("SystemRequirement not found with id: $id") }
@@ -46,7 +47,7 @@ class SystemRequirementsService(
             description = description,
             createdBy = createdBy,
             user_req_id = userRequirementId,
-            flag = existing.flag
+            flag = flag
         )
 
         return systemRequirementRepo.save(updated)

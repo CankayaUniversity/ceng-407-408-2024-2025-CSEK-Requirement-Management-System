@@ -3,7 +3,6 @@ plugins {
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.4.5"
 	id("io.spring.dependency-management") version "1.1.7"
-
 }
 val springCloudVersion by extra("2024.0.1")
 group = "com.example"
@@ -17,8 +16,9 @@ java {
 
 repositories {
 	mavenCentral()
-	maven { url = uri("https://repo.spring.io/release") }
 }
+
+extra["springCloudVersion"] = "2024.0.1"
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -33,6 +33,12 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+	}
+}
+
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
@@ -41,9 +47,4 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
-}
-dependencyManagement {
-	imports {
-		mavenBom("org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion")
-	}
 }
