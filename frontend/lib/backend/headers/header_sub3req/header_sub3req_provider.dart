@@ -4,6 +4,6 @@ import 'header_sub3req_api_service.dart';
 
 /// Provides a list of requirements by fetching from the backend API.
 final headerSub3ReqModelListProvider = FutureProvider<List<Header_Sub3Req_Model>>((ref) async {
-  final apiService = HeaderApiService();
+  final apiService = HeaderSub3ApiService();
   return await apiService.getRequirements();
 });

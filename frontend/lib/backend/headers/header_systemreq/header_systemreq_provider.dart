@@ -4,6 +4,6 @@ import 'header_systemreq_api_service.dart';
 
 /// Provides a list of requirements by fetching from the backend API.
 final headerSystemReqModelListProvider = FutureProvider<List<Header_SystemReq_Model>>((ref) async {
-  final apiService = HeaderApiService();
+  final apiService = HeaderSystemApiService();
   return await apiService.getRequirements();
 });

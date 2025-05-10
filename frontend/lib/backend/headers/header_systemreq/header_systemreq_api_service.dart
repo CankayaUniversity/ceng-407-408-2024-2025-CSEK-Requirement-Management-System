@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'header_systemreq_model.dart';
 
-class HeaderApiService {
+class HeaderSystemApiService {
   final Dio dio = Dio(BaseOptions(baseUrl: 'http://localhost:9500/system-requirements'));
 
   Future<List<Header_SystemReq_Model>> getRequirements() async {

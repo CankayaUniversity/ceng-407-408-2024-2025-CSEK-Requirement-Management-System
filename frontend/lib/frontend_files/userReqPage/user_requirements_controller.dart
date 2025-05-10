@@ -12,6 +12,7 @@ import '../../backend/attributes/user_attribute/user_attribute_model.dart';
 import '../../backend/attributes/user_attribute/user_attribute_provider.dart';
 import '../../backend/changeLogs/user_requirements_change_log/changeLog_user_requirement_api_service.dart';
 import '../../backend/changeLogs/user_requirements_change_log/changeLog_user_requirement_model.dart';
+import '../../backend/headers/header_userreq/header_userreq_api_service.dart';
 import '../../backend/headers/header_userreq/header_userreq_model.dart';
 
 class UserRequirementsController {
@@ -346,6 +347,51 @@ class UserRequirementsController {
 
               await UserAttributeApiService().createRequirement(newAttr);
               ref.refresh(userAttributeListProvider);
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ekle"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("İptal"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void showAddHeaderDialog(
+      BuildContext context,
+      WidgetRef ref,
+      String username,
+      ) {
+    final _headerController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Yeni Header Ekle"),
+        content: TextField(
+          controller: _headerController,
+          decoration: const InputDecoration(labelText: "Header Adı"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              final headerText = _headerController.text.trim();
+              if (headerText.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Header adı boş olamaz")),
+                );
+                return;
+              }
+
+              final newHeader = Header_UserReq_Model(
+                header: headerText,
+              );
+
+              await HeaderApiService().createRequirement(newHeader);
+              ref.refresh(headerUserReqModelListProvider);
               Navigator.of(context).pop();
             },
             child: const Text("Ekle"),
