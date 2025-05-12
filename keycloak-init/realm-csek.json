@@ -1,0 +1,96 @@
+{
+  "realm": "csek",
+  "enabled": true,
+  "loginTheme": "csek-theme",
+
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Admin role" },
+      { "name": "system_engineer", "description": "System engineer with technical permissions" },
+      { "name": "reviewer", "description": "Reviewer with read-only permissions" }
+    ],
+    "client": {
+      "csek-frontend": [
+        { "name": "admin" },
+        { "name": "system_engineer" },
+        { "name": "reviewer" }
+      ]
+    }
+  },
+  
+  "clients": [
+    {
+      "clientId": "csek-frontend",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": ["http://localhost:5500/*"],
+      "webOrigins": ["http://localhost:5500"],
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "defaultRoles": ["user"],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:5500/login",
+        "oauth2.device.authorization.grant.enabled": "false"
+      }
+    }
+  ],
+
+  "users": [
+    {
+      "username": "can",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123"
+        }
+      ],
+      "clientRoles": {
+        "csek-frontend": ["admin"]
+      }
+    },
+    {
+      "username": "sarper",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123"
+        }
+      ],
+      "clientRoles": {
+        "csek-frontend": ["system_engineer"]
+      }
+    },
+    {
+      "username": "kivilcim",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123"
+        }
+      ],
+      "clientRoles": {
+        "csek-frontend": ["system_engineer"]
+      }
+    },
+    {
+      "username": "eray",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "123"
+        }
+      ],
+      "clientRoles": {
+        "csek-frontend": ["reviewer"]
+      }
+    }
+  ]
+}
