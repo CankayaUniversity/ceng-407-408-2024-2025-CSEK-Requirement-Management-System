@@ -9,4 +9,5 @@ data class SystemRequirement(
     val createdBy: String,
     val flag: Boolean,
     val user_req_id: UUID,
+    val projectId: UUID,
 )

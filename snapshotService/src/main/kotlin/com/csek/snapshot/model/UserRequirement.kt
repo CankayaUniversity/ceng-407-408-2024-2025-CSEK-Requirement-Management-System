@@ -7,5 +7,6 @@ data class UserRequirement(
     val title: String,
     val description: String,
     val createdBy: String,
-    val flag: Boolean
+    val flag: Boolean,
+    val projectId: UUID,
 )

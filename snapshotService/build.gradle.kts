@@ -25,6 +25,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+	implementation(platform("software.amazon.awssdk:bom:2.25.11"))
+	implementation("software.amazon.awssdk:s3")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

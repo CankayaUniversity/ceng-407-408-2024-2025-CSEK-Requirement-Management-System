@@ -9,4 +9,5 @@ class Subsystem1Requirement (
     val createdBy: String,
     val flag: Boolean,
     val systemRequirementId: UUID,
+    val projectId: UUID,
 )
