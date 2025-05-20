@@ -17,6 +17,13 @@ import '../../backend/headers/header_userreq/header_userreq_api_service.dart';
 import '../../backend/headers/header_userreq/header_userreq_model.dart';
 import '../../backend/projects/selected_project_provider.dart';
 
+import 'package:frontend/frontend_files/userReqPage/UserRequirementGraph.dart';
+import '../../../backend/system_requirements/system_requirement_provider.dart';
+import '../../../backend/system_requirements/system_requirement_model.dart';
+import 'package:frontend/backend/subsystems/subsystem1_requirements/subsystem1_requirement_provider.dart';
+import 'package:frontend/backend/subsystems/subsystem2_requirements/subsystem2_requirement_provider.dart';
+import 'package:frontend/backend/subsystems/subsystem3_requirements/subsystem3_requirement_provider.dart';
+
 class UserRequirementsController {
   /// Kullanıcı adını ve rollerini getirir
   static Future<void> loadUserInfo(
@@ -250,90 +257,6 @@ class UserRequirementsController {
     await UserRequirementApiService().deleteRequirement(req.id);
 
     ref.refresh(userRequirementListProvider);
-  }
-
-  static void showDetailPopup(
-    String username,
-    BuildContext context,
-    WidgetRef ref,
-    UserReqModel req,
-    bool isAdmin,
-    bool canEdit,
-    List<Header_UserReq_Model> headers,
-    List<UserAttributeModel> attributes,
-  ) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(req.title),
-            content: SizedBox(
-              width: 500,
-              height: 300,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Açıklama:",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(req.description),
-                    const SizedBox(height: 20),
-                    if (canEdit)
-                      TextButton.icon(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          showDescriptionDialog(
-                            context,
-                            ref,
-                            req,
-                            canEdit,
-                            username,
-                            headers,
-                            attributes,
-                          );
-                        },
-                        icon: const Icon(Icons.edit),
-                        label: const Text("Güncelle"),
-                      ),
-                    if (isAdmin)
-                      TextButton.icon(
-                        onPressed: () {
-                          _showConfirmationDialog(
-                            context,
-                            "Silmek istediğinize emin misiniz?",
-                            () async {
-                              await deleteRequirement(
-                                username,
-                                req,
-                                ref,
-                                headers,
-                                attributes,
-                              );
-                              Navigator.of(context).pop();
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        label: const Text(
-                          "Sil",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Kapat"),
-              ),
-            ],
-          ),
-    );
   }
 
   static void _showConfirmationDialog(
@@ -614,6 +537,143 @@ class UserRequirementsController {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
                 child: const Text("İptal"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  static void showDetailPopup(
+    String username,
+    BuildContext context,
+    WidgetRef ref,
+    UserReqModel req,
+    bool isAdmin,
+    bool canEdit,
+    List<Header_UserReq_Model> headers,
+    List<UserAttributeModel> attributes,
+  ) {
+    /// 1. Bu user requirement’a bağlı system requirementları al
+    final systemRequirements =
+        ref.read(systemRequirementListProvider).value ?? [];
+    final linkedSystem = systemRequirements.firstWhere(
+      (s) => s.user_req_id == req.id,
+      orElse:
+          () => SystemReqModel(
+            id: '',
+            title: 'Bağlı SG yok',
+            description: '',
+            createdBy: '',
+            flag: false,
+            user_req_id: '',
+            projectId: '',
+          ),
+    );
+
+    /// 2. Bu SG’ye bağlı subsystem’leri al
+    final subs1 =
+        ref
+            .read(subsystem1RequirementListProvider)
+            .value
+            ?.where((s) => s.systemRequirementId == linkedSystem.id)
+            .map((s) => s.title)
+            .toList();
+
+    final subs2 =
+        ref
+            .read(subsystem2RequirementListProvider)
+            .value
+            ?.where((s) => s.systemRequirementId == linkedSystem.id)
+            .map((s) => s.title)
+            .toList();
+
+    final subs3 =
+        ref
+            .read(subsystem3RequirementListProvider)
+            .value
+            ?.where((s) => s.systemRequirementId == linkedSystem.id)
+            .map((s) => s.title)
+            .toList();
+
+    final allSubsystems = [...?subs1, ...?subs2, ...?subs3];
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(req.title),
+            content: SizedBox(
+              width: 500,
+              height: 350,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Açıklama:",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(req.description),
+                    const SizedBox(height: 20),
+
+                    /// 🧠 Grafik
+                    UserRequirementGraph(
+                      kgTitle: req.title,
+                      sgTitle: linkedSystem.title,
+                      subsystemTitles: allSubsystems,
+                    ),
+
+                    const SizedBox(height: 20),
+                    if (canEdit)
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          showDescriptionDialog(
+                            context,
+                            ref,
+                            req,
+                            canEdit,
+                            username,
+                            headers,
+                            attributes,
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: const Text("Güncelle"),
+                      ),
+                    if (isAdmin)
+                      TextButton.icon(
+                        onPressed: () {
+                          _showConfirmationDialog(
+                            context,
+                            "Silmek istediğinize emin misiniz?",
+                            () async {
+                              await deleteRequirement(
+                                username,
+                                req,
+                                ref,
+                                headers,
+                                attributes,
+                              );
+                              Navigator.of(context).pop();
+                            },
+                          );
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        label: const Text(
+                          "Sil",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("Kapat"),
               ),
             ],
           ),

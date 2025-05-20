@@ -22,6 +22,10 @@ import '../../backend/system_requirements/system_requirement_model.dart';
 import '../../backend/system_requirements/system_requirement_provider.dart';
 import '../../backend/user_requirements/user_requirement_provider.dart';
 import '../../backend/projects/selected_project_provider.dart';
+import 'package:frontend/frontend_files/systemReqPage/SystemRequirementGraph.dart';
+import 'package:frontend/backend/subsystems/subsystem1_requirements/subsystem1_requirement_provider.dart';
+import 'package:frontend/backend/subsystems/subsystem2_requirements/subsystem2_requirement_provider.dart';
+import 'package:frontend/backend/subsystems/subsystem3_requirements/subsystem3_requirement_provider.dart';
 
 class SystemRequirementsController {
   static Future<void> loadUserInfo(
@@ -296,6 +300,31 @@ class SystemRequirementsController {
           ),
     );
 
+    /// Alt sistemleri al
+    final List<String> subsystems = [
+      ...ref
+              .read(subsystem1RequirementListProvider)
+              .value
+              ?.where((s) => s.systemRequirementId == req.id)
+              .map((s) => s.title)
+              .cast<String>() ??
+          [],
+      ...ref
+              .read(subsystem2RequirementListProvider)
+              .value
+              ?.where((s) => s.systemRequirementId == req.id)
+              .map((s) => s.title)
+              .cast<String>() ??
+          [],
+      ...ref
+              .read(subsystem3RequirementListProvider)
+              .value
+              ?.where((s) => s.systemRequirementId == req.id)
+              .map((s) => s.title)
+              .cast<String>() ??
+          [],
+    ];
+
     showDialog(
       context: context,
       builder:
@@ -303,7 +332,7 @@ class SystemRequirementsController {
             title: Text(req.title),
             content: SizedBox(
               width: 500,
-              height: 300,
+              height: 400,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,11 +345,14 @@ class SystemRequirementsController {
                     Text(req.description),
                     const SizedBox(height: 20),
 
-                    Text(
-                      "${linkedUserReq.title} <<<<----",
-                      style: const TextStyle(color: Colors.blueGrey),
+                    /// 🔗 Görsel Bağlantı Diyagramı
+                    SystemRequirementGraph(
+                      kgTitle: linkedUserReq.title,
+                      sgTitle: req.title,
+                      subsystemTitles: subsystems,
                     ),
-                    const SizedBox(height: 10),
+
+                    const SizedBox(height: 20),
 
                     if (canEdit)
                       TextButton.icon(
