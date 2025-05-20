@@ -8,4 +8,5 @@ abstract class RequirementChangeLog {
   List<String>? get oldAttributeDescription;
   String? get changeType;
   DateTime? get modifiedAt;
+  String? get projectId;
 }

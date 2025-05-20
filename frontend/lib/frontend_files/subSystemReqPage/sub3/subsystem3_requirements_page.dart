@@ -41,7 +41,7 @@ class _Subsystem1RequirementsPage
     final attributes = ref.watch(sub3AttributeListProvider);
     final headers = ref.watch(headerSub3ReqModelListProvider);
 
-    int uzunluk = 10;
+    int uzunluk = 60;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");

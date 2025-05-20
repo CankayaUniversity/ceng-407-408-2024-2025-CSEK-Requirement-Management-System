@@ -5,7 +5,9 @@ import '../../backend/changeLogs/user_requirements_change_log/changeLog_user_req
 
 class ChangeLogController {
   /// Kullanıcı adını ve rollerini getirir
-  static Future<void> loadUserInfo(Function(String, List<String>) onLoaded) async {
+  static Future<void> loadUserInfo(
+    Function(String, List<String>) onLoaded,
+  ) async {
     final info = await AuthService.getUserInfo();
     final userRoles = await AuthService.getUserRoles();
     onLoaded(info?['username'] ?? 'Bilinmiyor', userRoles);
@@ -19,6 +21,7 @@ class ChangeLogController {
 
   static List<RequirementChangeLog> filterLogs({
     required List<RequirementChangeLog> logs,
+    required String? selectedProjectId,
     String? prefix,
     String? changeType,
     String? modifiedBy,
@@ -27,16 +30,28 @@ class ChangeLogController {
     String? exactTitle,
   }) {
     return logs.where((log) {
-      final matchesPrefix = prefix == null || (log.oldTitle ?? '').startsWith(prefix);
+      final matchesProject =
+          selectedProjectId == null || log.projectId == selectedProjectId;
+      final matchesPrefix =
+          prefix == null || (log.oldTitle ?? '').startsWith(prefix);
       final matchesType = changeType == null || log.changeType == changeType;
-      final matchesModifiedBy = modifiedBy == null || log.modifiedBy == modifiedBy;
-      final matchesDate = (startDate == null || (log.modifiedAt?.isAfter(startDate) ?? false)) &&
+      final matchesModifiedBy =
+          modifiedBy == null || log.modifiedBy == modifiedBy;
+      final matchesDate =
+          (startDate == null ||
+              (log.modifiedAt?.isAfter(startDate) ?? false)) &&
           (endDate == null || (log.modifiedAt?.isBefore(endDate) ?? false));
-      final matchesExact = (prefix != null && exactTitle != null && exactTitle.isNotEmpty)
-          ? log.oldTitle == '$prefix-$exactTitle'
-          : true;
+      final matchesExact =
+          (prefix != null && exactTitle != null && exactTitle.isNotEmpty)
+              ? log.oldTitle == '$prefix-$exactTitle'
+              : true;
 
-      return matchesPrefix && matchesType && matchesModifiedBy && matchesDate && matchesExact;
+      return matchesProject &&
+          matchesPrefix &&
+          matchesType &&
+          matchesModifiedBy &&
+          matchesDate &&
+          matchesExact;
     }).toList();
   }
 }

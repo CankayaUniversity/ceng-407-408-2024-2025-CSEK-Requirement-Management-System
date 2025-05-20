@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/frontend_files/custom_app_bar.dart';
-import 'package:frontend/frontend_files/subSystemReqPage/sub1/subsystem1_requirements_controller.dart' as controller;
+import 'package:frontend/frontend_files/subSystemReqPage/sub1/subsystem1_requirements_controller.dart'
+    as controller;
 
 import '../../../backend/attributes/sub1_attribute/sub1_attribute_model.dart';
 import '../../../backend/attributes/sub1_attribute/sub1_attribute_provider.dart';
@@ -9,20 +10,19 @@ import '../../../backend/headers/header_sub1req/header_sub1req_provider.dart';
 import '../../../backend/subsystems/subsystem1_requirements/subsystem1_requirement_provider.dart';
 import '../../../backend/system_requirements/system_requirement_provider.dart';
 
-
-
 class Subsystem1RequirementsPage extends ConsumerStatefulWidget {
   const Subsystem1RequirementsPage({super.key, required this.title});
   final String title;
 
   @override
-  ConsumerState<Subsystem1RequirementsPage> createState() => _Subsystem1RequirementsPage();
+  ConsumerState<Subsystem1RequirementsPage> createState() =>
+      _Subsystem1RequirementsPage();
 }
 
-class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPage> {
+class _Subsystem1RequirementsPage
+    extends ConsumerState<Subsystem1RequirementsPage> {
   String? username;
   List<String> roles = [];
-
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
     final attributes = ref.watch(sub1AttributeListProvider);
     final headers = ref.watch(sub1HeaderListProvider);
 
-    int uzunluk = 10;
+    int uzunluk = 60;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");
@@ -65,7 +65,8 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                         icon: const Icon(Icons.add),
                         label: const Text("Kolon Ekle"),
                         onPressed: () {
-                          controller.Subsystem1RequirementsController.showAddHeaderDialog(
+                          controller
+                              .Subsystem1RequirementsController.showAddHeaderDialog(
                             context,
                             ref,
                             username!,
@@ -77,7 +78,8 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                         icon: const Icon(Icons.add_circle_outline),
                         label: const Text("Yeni Gereksinim"),
                         onPressed: () {
-                          controller.Subsystem1RequirementsController.showAddRequirementDialog(
+                          controller
+                              .Subsystem1RequirementsController.showAddRequirementDialog(
                             context,
                             ref,
                             username!,
@@ -88,25 +90,27 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                   ),
                 const SizedBox(height: 8),
 
-
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Column(
                       children: [
-
                         Row(
                           children: [
                             const SizedBox(width: 150),
                             const SizedBox(width: 200),
-                            ...headerList.map((h) => SizedBox(
-                              width: 120,
-                              child: Text(
-                                h.header,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                            ...headerList.map(
+                              (h) => SizedBox(
+                                width: 120,
+                                child: Text(
+                                  h.header,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            )),
+                            ),
                             const SizedBox(width: 40),
                           ],
                         ),
@@ -118,7 +122,8 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                             onTap: () {
                               final attributeList = attributes.value ?? [];
 
-                              controller.Subsystem1RequirementsController.showDetailPopup(
+                              controller
+                                  .Subsystem1RequirementsController.showDetailPopup(
                                 username!,
                                 context,
                                 ref,
@@ -127,24 +132,32 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                                 canEdit,
                                 headerList,
                                 attributeList,
-                                ref.read(systemRequirementListProvider).value ?? [],
+                                ref.read(systemRequirementListProvider).value ??
+                                    [],
                               );
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(vertical: 4),
-                              decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.black),
+                              ),
                               child: Row(
                                 children: [
                                   /// DG Kodu
                                   Container(
                                     width: 150,
                                     color: Colors.grey[400],
-                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 8,
+                                    ),
                                     child: Tooltip(
                                       message: req.createdBy,
                                       child: Text(
                                         req.title,
-                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -163,16 +176,22 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
 
                                   /// Dynamic Header Cells
                                   ...headerList.map((h) {
-                                    final matchingAttr = attributes.value?.firstWhere(
+                                    final matchingAttr = attributes.value
+                                        ?.firstWhere(
                                           (attr) =>
-                                      attr.subsystem1Id == req.id &&
-                                          attr.title == h.header,
-                                      orElse: () => Sub1AttributeModel(title: '', subsystem1Id: '', description: ''),
-                                    );
-
+                                              attr.subsystem1Id == req.id &&
+                                              attr.title == h.header,
+                                          orElse:
+                                              () => Sub1AttributeModel(
+                                                title: '',
+                                                subsystem1Id: '',
+                                                description: '',
+                                              ),
+                                        );
 
                                     final desc = matchingAttr?.description;
-                                    final isEmpty = desc == null || desc.isEmpty;
+                                    final isEmpty =
+                                        desc == null || desc.isEmpty;
 
                                     return Container(
                                       width: 120,
@@ -181,25 +200,35 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
                                         message: isEmpty ? "Ekle" : desc!,
                                         child: GestureDetector(
                                           onTap: () {
-                                            controller.Subsystem1RequirementsController.showAttributeDialog(
+                                            controller
+                                                .Subsystem1RequirementsController.showAttributeDialog(
                                               context,
                                               ref,
                                               req.id,
                                               h.header,
                                               username!,
                                               isEmpty ? null : desc,
-                                              attributeId: isEmpty ? null : matchingAttr?.id,
+                                              attributeId:
+                                                  isEmpty
+                                                      ? null
+                                                      : matchingAttr?.id,
                                               canEdit: canEdit,
                                             );
                                           },
-                                          child: isEmpty
-                                              ? const Icon(Icons.add, size: 18, color: Colors.blueGrey)
-                                              : Text(
-                                            desc.length > 15
-                                                ? '${desc.substring(0, 15)}...'
-                                                : desc,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                                          child:
+                                              isEmpty
+                                                  ? const Icon(
+                                                    Icons.add,
+                                                    size: 18,
+                                                    color: Colors.blueGrey,
+                                                  )
+                                                  : Text(
+                                                    desc.length > 15
+                                                        ? '${desc.substring(0, 15)}...'
+                                                        : desc,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                         ),
                                       ),
                                     );
@@ -207,19 +236,37 @@ class _Subsystem1RequirementsPage extends ConsumerState<Subsystem1RequirementsPa
 
                                   /// Flag
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                    child: isAdmin
-                                        ? IconButton(
-                                      icon: Icon(
-                                        req.flag ? Icons.check_circle : Icons.help_outline,
-                                        color: req.flag ? Colors.green : Colors.orange,
-                                      ),
-                                      onPressed: () => controller.Subsystem1RequirementsController.toggleFlag(req, ref),
-                                    )
-                                        : Icon(
-                                      req.flag ? Icons.check_circle : Icons.help_outline,
-                                      color: req.flag ? Colors.green : Colors.orange,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
                                     ),
+                                    child:
+                                        isAdmin
+                                            ? IconButton(
+                                              icon: Icon(
+                                                req.flag
+                                                    ? Icons.check_circle
+                                                    : Icons.help_outline,
+                                                color:
+                                                    req.flag
+                                                        ? Colors.green
+                                                        : Colors.orange,
+                                              ),
+                                              onPressed:
+                                                  () => controller
+                                                      .Subsystem1RequirementsController.toggleFlag(
+                                                    req,
+                                                    ref,
+                                                  ),
+                                            )
+                                            : Icon(
+                                              req.flag
+                                                  ? Icons.check_circle
+                                                  : Icons.help_outline,
+                                              color:
+                                                  req.flag
+                                                      ? Colors.green
+                                                      : Colors.orange,
+                                            ),
                                   ),
                                 ],
                               ),

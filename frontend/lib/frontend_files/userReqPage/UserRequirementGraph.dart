@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/backend/subsystems/subsystem1_requirements/subsystem1_requirement_model.dart';
+import 'package:frontend/backend/subsystems/subsystem2_requirements/subsystem2_requirement_model.dart';
+import 'package:frontend/backend/subsystems/subsystem3_requirements/subsystem3_requirement_model.dart';
+import 'package:frontend/backend/system_requirements/system_requirement_model.dart';
 import 'package:graphview/GraphView.dart';
 
 class UserRequirementGraph extends StatelessWidget {
   final String kgTitle;
-  final String sgTitle;
-  final List<String> subsystemTitles;
+  final List<SystemReqModel> systemRequirements;
+  final List<Subsystem1ReqModel> subsystem1;
+  final List<Subsystem2ReqModel> subsystem2;
+  final List<Subsystem3ReqModel> subsystem3;
 
   const UserRequirementGraph({
     super.key,
     required this.kgTitle,
-    required this.sgTitle,
-    required this.subsystemTitles,
+    required this.systemRequirements,
+    required this.subsystem1,
+    required this.subsystem2,
+    required this.subsystem3,
   });
 
   @override
   Widget build(BuildContext context) {
     final graph = Graph()..isTree = false;
-    final builder =
+    final config =
         BuchheimWalkerConfiguration()
           ..siblingSeparation = 30
           ..levelSeparation = 50
@@ -24,25 +32,48 @@ class UserRequirementGraph extends StatelessWidget {
           ..orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
 
     final kgNode = Node.Id(kgTitle);
-    final sgNode = Node.Id(sgTitle);
-    graph.addEdge(kgNode, sgNode);
+    graph.addNode(kgNode);
 
-    for (var sub in subsystemTitles) {
-      final subNode = Node.Id(sub);
-      graph.addEdge(sgNode, subNode);
+    for (var sg in systemRequirements) {
+      final sgNode = Node.Id(sg.title);
+      graph.addEdge(kgNode, sgNode);
+
+      final sgId = sg.id;
+      for (var sg in systemRequirements) {
+        final sgNode = Node.Id(sg.title);
+        graph.addEdge(kgNode, sgNode);
+
+        final sgId = sg.id;
+
+        for (var dg in subsystem1) {
+          if (dg.systemRequirementId == sgId) {
+            final dgNode = Node.Id(dg.title);
+            graph.addEdge(sgNode, dgNode);
+          }
+        }
+        for (var dg in subsystem2) {
+          if (dg.systemRequirementId == sgId) {
+            final dgNode = Node.Id(dg.title);
+            graph.addEdge(sgNode, dgNode);
+          }
+        }
+        for (var dg in subsystem3) {
+          if (dg.systemRequirementId == sgId) {
+            final dgNode = Node.Id(dg.title);
+            graph.addEdge(sgNode, dgNode);
+          }
+        }
+      }
     }
 
     return SizedBox(
-      height: 300,
+      height: 400,
       child: InteractiveViewer(
         boundaryMargin: const EdgeInsets.all(50),
         constrained: false,
         child: GraphView(
           graph: graph,
-          algorithm: BuchheimWalkerAlgorithm(
-            builder,
-            TreeEdgeRenderer(builder),
-          ),
+          algorithm: BuchheimWalkerAlgorithm(config, TreeEdgeRenderer(config)),
           builder: (Node node) {
             return nodeWidget(node.key!.value as String);
           },
@@ -55,7 +86,7 @@ class UserRequirementGraph extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF2E3440), // koyu mavi-gri ton
+        color: const Color(0xFF2E3440),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFF81A1C1), width: 1.5),
         boxShadow: [

@@ -569,6 +569,14 @@ class UserRequirementsController {
             projectId: '',
           ),
     );
+    final systemRequirementList =
+        ref.read(systemRequirementListProvider).value ?? [];
+    final subsystem1List =
+        ref.read(subsystem1RequirementListProvider).value ?? [];
+    final subsystem2List =
+        ref.read(subsystem2RequirementListProvider).value ?? [];
+    final subsystem3List =
+        ref.read(subsystem3RequirementListProvider).value ?? [];
 
     /// 2. Bu SG’ye bağlı subsystem’leri al
     final subs1 =
@@ -620,8 +628,13 @@ class UserRequirementsController {
                     /// 🧠 Grafik
                     UserRequirementGraph(
                       kgTitle: req.title,
-                      sgTitle: linkedSystem.title,
-                      subsystemTitles: allSubsystems,
+                      systemRequirements:
+                          systemRequirementList
+                              .where((sg) => sg.user_req_id == req.id)
+                              .toList(),
+                      subsystem1: subsystem1List,
+                      subsystem2: subsystem2List,
+                      subsystem3: subsystem3List,
                     ),
 
                     const SizedBox(height: 20),
