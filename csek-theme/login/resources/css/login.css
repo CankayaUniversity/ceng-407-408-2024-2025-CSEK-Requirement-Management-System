@@ -1,5 +1,5 @@
 body {
-    background-color: #f4f4f4;
+    background-color: #000000; 
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
@@ -12,11 +12,12 @@ body {
 
 .login-container {
     width: 350px;
-    background-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
     padding: 2rem;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2); 
 }
 
 .logo {
@@ -30,7 +31,7 @@ body {
 
 h1 {
     font-size: 18px;
-    color: #333333;
+    color: #ffffff; 
     margin-bottom: 1.5rem;
 }
 
@@ -38,22 +39,23 @@ input[type="text"], input[type="password"] {
     width: 100%;
     padding: 0.75rem;
     margin-bottom: 1rem;
-    border: 1px solid #ccc;
+    border: 1px solid #888;
     border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
 }
 
 input[type="submit"] {
     width: 100%;
     padding: 0.75rem;
-    background-color: #333;
-    color: white;
+    background-color: #ffffff;
+    color: #000000;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-weight: bold;
 }
 
-body {
-    background-image: none !important;
-    background-color: #f4f4f4 !important;
+input::placeholder {
+    color: #ddd;
 }
-
