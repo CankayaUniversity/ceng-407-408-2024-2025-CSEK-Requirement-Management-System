@@ -154,64 +154,110 @@ class SystemRequirementsController {
     String username,
     List<Header_SystemReq_Model> headers,
     List<SystemAttributeModel> attributes,
+    List<UserReqModel> userRequirements,
   ) {
-    final _descController = TextEditingController(text: req.description);
-
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(req.title),
-            content:
-                canEdit
-                    ? TextField(
-                      controller: _descController,
-                      maxLines: null,
-                      decoration: const InputDecoration(labelText: 'Açıklama'),
-                    )
-                    : Text(req.description),
-            actions: [
-              if (canEdit)
-                TextButton(
-                  onPressed: () {
-                    _showConfirmationDialog(
-                      context,
-                      "GÜNCELLEMEK İSTEDİĞİNİZE EMİN MİSİNİZ?",
-                      () async {
-                        final updatedReq = SystemReqModel(
-                          id: req.id,
-                          title: req.title,
-                          description: _descController.text.trim(),
-                          createdBy: req.createdBy,
-                          flag: false,
-                          user_req_id: req.user_req_id,
-                          projectId: req.projectId,
-                        );
+      builder: (context) {
+        final _descController = TextEditingController(text: req.description);
+        UserReqModel? selectedUserReq = userRequirements.firstWhere(
+          (u) => u.id == req.user_req_id,
+          orElse:
+              () =>
+                  userRequirements.isNotEmpty
+                      ? userRequirements.first
+                      : UserReqModel(
+                        id: '',
+                        title: 'Bilinmiyor',
+                        description: '',
+                        createdBy: '',
+                        flag: false,
+                        projectId: '',
+                      ),
+        );
+        String? selectedUserReqId = selectedUserReq?.id;
 
-                        await createChangeLogForRequirement(
-                          username: username,
-                          req: req,
-                          headers: headers,
-                          attributes: attributes,
-                          changeType: 'update',
-                        );
-
-                        await SystemRequirementApiService().updateRequirement(
-                          updatedReq,
-                        );
-                        ref.refresh(systemRequirementListProvider);
-                        Navigator.of(context).pop();
-                      },
-                    );
-                  },
-                  child: const Text("Güncelle"),
-                ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Kapat"),
-              ),
-            ],
+        return AlertDialog(
+          title: Text(req.title),
+          content: SizedBox(
+            width: 500,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (canEdit)
+                  TextField(
+                    controller: _descController,
+                    maxLines: null,
+                    decoration: const InputDecoration(labelText: 'Açıklama'),
+                  )
+                else
+                  Text(req.description),
+                const SizedBox(height: 16),
+                if (canEdit)
+                  DropdownButtonFormField<UserReqModel>(
+                    value: selectedUserReq,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: "Kullanıcı Gereksinimi Seç",
+                    ),
+                    items:
+                        userRequirements.map((reqItem) {
+                          return DropdownMenuItem<UserReqModel>(
+                            value: reqItem,
+                            child: Text(reqItem.title),
+                          );
+                        }).toList(),
+                    onChanged: (val) {
+                      selectedUserReq = val;
+                      selectedUserReqId = val?.id;
+                    },
+                  ),
+              ],
+            ),
           ),
+          actions: [
+            if (canEdit)
+              TextButton(
+                onPressed: () {
+                  _showConfirmationDialog(
+                    context,
+                    "GÜNCELLEMEK İSTEDİĞİNİZE EMİN MİSİNİZ?",
+                    () async {
+                      final updatedReq = SystemReqModel(
+                        id: req.id,
+                        title: req.title,
+                        description: _descController.text.trim(),
+                        createdBy: req.createdBy,
+                        flag: false,
+                        user_req_id: selectedUserReqId ?? req.user_req_id,
+                        projectId: req.projectId,
+                      );
+
+                      await createChangeLogForRequirement(
+                        username: username,
+                        req: req,
+                        headers: headers,
+                        attributes: attributes,
+                        changeType: 'update',
+                      );
+
+                      await SystemRequirementApiService().updateRequirement(
+                        updatedReq,
+                      );
+                      ref.refresh(systemRequirementListProvider);
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+                child: const Text("Güncelle"),
+              ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Kapat"),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -366,6 +412,7 @@ class SystemRequirementsController {
                             username,
                             headers,
                             attributes,
+                            userRequirements,
                           );
                         },
                         icon: const Icon(Icons.edit),

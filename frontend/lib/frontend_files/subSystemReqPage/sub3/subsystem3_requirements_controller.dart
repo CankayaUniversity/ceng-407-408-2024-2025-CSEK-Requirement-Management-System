@@ -158,20 +158,69 @@ class Subsystem3RequirementsController {
     List<Sub3AttributeModel> attributes,
   ) {
     final _descController = TextEditingController(text: req.description);
+    // Get system requirements and the currently selected one
+    final systemRequirements =
+        ref.read(systemRequirementListProvider).value ?? [];
+    SystemReqModel? selectedSystemReq = systemRequirements.firstWhere(
+      (r) => r.id == req.systemRequirementId,
+      orElse:
+          () =>
+              systemRequirements.isNotEmpty
+                  ? systemRequirements.first
+                  : SystemReqModel(
+                    id: '',
+                    title: 'Bağlı Değil',
+                    description: '',
+                    createdBy: '',
+                    flag: false,
+                    user_req_id: '',
+                    projectId: '',
+                  ),
+    );
+    String? selectedSystemReqId = selectedSystemReq.id;
 
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: Text(req.title),
-            content:
-                canEdit
-                    ? TextField(
-                      controller: _descController,
-                      maxLines: null,
-                      decoration: const InputDecoration(labelText: 'Açıklama'),
-                    )
-                    : Text(req.description),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  canEdit
+                      ? TextField(
+                        controller: _descController,
+                        maxLines: null,
+                        decoration: const InputDecoration(
+                          labelText: 'Açıklama',
+                        ),
+                      )
+                      : Text(req.description),
+                  if (canEdit) ...[
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<SystemReqModel>(
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: "Sistem Gereksinimi Seç",
+                      ),
+                      value: selectedSystemReq,
+                      items:
+                          systemRequirements.map((s) {
+                            return DropdownMenuItem<SystemReqModel>(
+                              value: s,
+                              child: Text(s.title),
+                            );
+                          }).toList(),
+                      onChanged: (val) {
+                        selectedSystemReq = val;
+                        selectedSystemReqId = val?.id;
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
             actions: [
               if (canEdit)
                 TextButton(
@@ -186,7 +235,8 @@ class Subsystem3RequirementsController {
                           description: _descController.text.trim(),
                           createdBy: req.createdBy,
                           flag: false,
-                          systemRequirementId: req.systemRequirementId,
+                          systemRequirementId:
+                              selectedSystemReqId ?? req.systemRequirementId,
                           projectId: req.projectId,
                         );
 

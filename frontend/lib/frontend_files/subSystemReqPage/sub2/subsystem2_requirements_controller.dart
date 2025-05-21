@@ -96,7 +96,7 @@ class Subsystem2RequirementsController {
                           );
                         }).toList(),
                     onChanged: (val) {
-                      selectedSystemReq = val;
+                      selectedSystemReq = val ?? selectedSystemReq;
                       selectedSystemReqId = val?.id;
                     },
                   ),
@@ -157,6 +157,22 @@ class Subsystem2RequirementsController {
     List<Sub2AttributeModel> attributes,
   ) {
     final _descController = TextEditingController(text: req.description);
+    final systemRequirements =
+        ref.read(systemRequirementListProvider).value ?? [];
+    SystemReqModel selectedSystemReq = systemRequirements.firstWhere(
+      (sr) => sr.id == req.systemRequirementId,
+      orElse:
+          () => SystemReqModel(
+            id: '',
+            title: '',
+            description: '',
+            createdBy: '',
+            flag: false,
+            user_req_id: '',
+            projectId: '',
+          ),
+    );
+    String? selectedSystemReqId = selectedSystemReq?.id;
 
     showDialog(
       context: context,
@@ -165,10 +181,48 @@ class Subsystem2RequirementsController {
             title: Text(req.title),
             content:
                 canEdit
-                    ? TextField(
-                      controller: _descController,
-                      maxLines: null,
-                      decoration: const InputDecoration(labelText: 'Açıklama'),
+                    ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: _descController,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                            labelText: 'Açıklama',
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        DropdownButtonFormField<SystemReqModel>(
+                          isExpanded: true,
+                          decoration: const InputDecoration(
+                            labelText: "Sistem Gereksinimi Seç",
+                          ),
+                          value: systemRequirements.firstWhere(
+                            (sr) => sr.id == req.systemRequirementId,
+                            orElse:
+                                () => SystemReqModel(
+                                  id: '',
+                                  title: '',
+                                  description: '',
+                                  createdBy: '',
+                                  flag: false,
+                                  user_req_id: '',
+                                  projectId: '',
+                                ),
+                          ),
+                          items:
+                              systemRequirements.map((req) {
+                                return DropdownMenuItem<SystemReqModel>(
+                                  value: req,
+                                  child: Text(req.title),
+                                );
+                              }).toList(),
+                          onChanged: (val) {
+                            selectedSystemReq = val ?? selectedSystemReq;
+                            selectedSystemReqId = val?.id;
+                          },
+                        ),
+                      ],
                     )
                     : Text(req.description),
             actions: [
@@ -185,7 +239,8 @@ class Subsystem2RequirementsController {
                           description: _descController.text.trim(),
                           createdBy: req.createdBy,
                           flag: false,
-                          systemRequirementId: req.systemRequirementId,
+                          systemRequirementId:
+                              selectedSystemReqId ?? req.systemRequirementId,
                           projectId: req.projectId,
                         );
 

@@ -159,6 +159,27 @@ class Subsystem1RequirementsController {
   ) {
     final _descController = TextEditingController(text: req.description);
 
+    // For system requirement selection
+    final systemRequirements =
+        ref.read(systemRequirementListProvider).value ?? [];
+    SystemReqModel? selectedSystemReq = systemRequirements.firstWhere(
+      (s) => s.id == req.systemRequirementId,
+      orElse:
+          () =>
+              systemRequirements.isNotEmpty
+                  ? systemRequirements.first
+                  : SystemReqModel(
+                    id: '',
+                    title: 'Seçilmedi',
+                    description: '',
+                    createdBy: '',
+                    flag: false,
+                    user_req_id: '',
+                    projectId: '',
+                  ),
+    );
+    String? selectedSystemReqId = selectedSystemReq.id;
+
     showDialog(
       context: context,
       builder:
@@ -166,10 +187,42 @@ class Subsystem1RequirementsController {
             title: Text(req.title),
             content:
                 canEdit
-                    ? TextField(
-                      controller: _descController,
-                      maxLines: null,
-                      decoration: const InputDecoration(labelText: 'Açıklama'),
+                    ? StatefulBuilder(
+                      builder:
+                          (context, setState) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DropdownButtonFormField<SystemReqModel>(
+                                isExpanded: true,
+                                decoration: const InputDecoration(
+                                  labelText: "Sistem Gereksinimi Seç",
+                                ),
+                                value: selectedSystemReq,
+                                items:
+                                    systemRequirements.map((req) {
+                                      return DropdownMenuItem<SystemReqModel>(
+                                        value: req,
+                                        child: Text(req.title),
+                                      );
+                                    }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedSystemReq = val;
+                                    selectedSystemReqId = val?.id;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: _descController,
+                                maxLines: null,
+                                decoration: const InputDecoration(
+                                  labelText: 'Açıklama',
+                                ),
+                              ),
+                            ],
+                          ),
                     )
                     : Text(req.description),
             actions: [
@@ -186,7 +239,8 @@ class Subsystem1RequirementsController {
                           description: _descController.text.trim(),
                           createdBy: req.createdBy,
                           flag: false,
-                          systemRequirementId: req.systemRequirementId,
+                          systemRequirementId:
+                              selectedSystemReqId ?? req.systemRequirementId,
                           projectId: req.projectId,
                         );
 
