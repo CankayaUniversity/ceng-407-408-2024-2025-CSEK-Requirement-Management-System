@@ -12,6 +12,8 @@ import 'package:frontend/backend/projects/projects_provider.dart';
 import 'package:frontend/frontend_files/homepage.dart';
 import 'package:frontend/frontend_files/loginpage/auth_service.dart';
 
+import 'BaselinePage/baseline_page.dart';
+
 // Yeni bir provider ile seçilen modül durumunu takip ediyoruz
 final selectedModuleLabelProvider = StateProvider<String?>((ref) => null);
 
@@ -58,7 +60,12 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
               (route) => false,
             );
           }),
-          _headerButton("Baseline", () {}),
+          _headerButton("Baseline", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SnapshotPage()),
+            );
+          }),
           _headerButton("Değişimler", () {
             Navigator.push(
               context,
