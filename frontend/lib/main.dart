@@ -30,6 +30,7 @@ class MyApp extends ConsumerWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
+
       initialRoute: '/login',
       routes: {
         '/': (context) => const MyHomePage(title: 'Ana Sayfa'),

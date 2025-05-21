@@ -8,9 +8,6 @@ class CallbackPage extends StatefulWidget {
   State<CallbackPage> createState() => _CallbackPageState();
 }
 
-
-
-
 class _CallbackPageState extends State<CallbackPage> {
   @override
   void initState() {
@@ -19,13 +16,12 @@ class _CallbackPageState extends State<CallbackPage> {
   }
 
   Future<void> _process() async {
-
-   // print('[CallbackPage] processRedirect() çağrılıyor...');
+    // print('[CallbackPage] processRedirect() çağrılıyor...');
     final authService = AuthService(); // örnek oluştur
     //await authService.processRedirect(); // doğru kullanım
     final token = await authService.processRedirect();
     if (token != null) {
-    //  print('[CallbackPage] Token alındı, anasayfaya yönlendiriliyor...');
+      //  print('[CallbackPage] Token alındı, anasayfaya yönlendiriliyor...');
       Navigator.pushReplacementNamed(context, '/');
     } else {
       //print('[CallbackPage] Token alınamadı!');
@@ -35,8 +31,22 @@ class _CallbackPageState extends State<CallbackPage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+    return Scaffold(
+      backgroundColor: const Color(0xFF1F1F1F),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            /*  SizedBox(
+              height: 150,
+              width: 150,
+              child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+            ),*/
+            const SizedBox(height: 24),
+            const CircularProgressIndicator(color: Colors.blueGrey),
+          ],
+        ),
+      ),
     );
   }
 }

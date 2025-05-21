@@ -10,6 +10,7 @@ import 'package:frontend/frontend_files/userReqPage/user_requirements_controller
 
 import '../../backend/attributes/user_attribute/user_attribute_model.dart';
 import 'package:frontend/backend/projects/selected_project_provider.dart';
+import 'package:frontend/frontend_files/ui_constants.dart';
 
 class UserRequirementsPage extends ConsumerStatefulWidget {
   const UserRequirementsPage({super.key, required this.title});
@@ -45,8 +46,6 @@ class _UserRequirementsPageState extends ConsumerState<UserRequirementsPage> {
     final attributes = ref.watch(userAttributeListProvider);
 
     final headers = ref.watch(headerUserReqModelListProvider);
-
-    int uzunluk = 40;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");
@@ -154,8 +153,9 @@ class _UserRequirementsPageState extends ConsumerState<UserRequirementsPage> {
                                       children: [
                                         // KG kodu
                                         Container(
-                                          width: 150,
+                                          width: isimUzunluk,
                                           color: Colors.grey[400],
+                                          alignment: Alignment.center,
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 16,
                                             horizontal: 8,
@@ -172,7 +172,7 @@ class _UserRequirementsPageState extends ConsumerState<UserRequirementsPage> {
                                         ),
 
                                         Container(
-                                          width: 200,
+                                          width: widthUzunluk,
                                           padding: const EdgeInsets.all(12.0),
                                           child: Text(
                                             req.description.length > uzunluk

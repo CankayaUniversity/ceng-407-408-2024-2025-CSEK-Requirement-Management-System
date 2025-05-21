@@ -9,6 +9,7 @@ import '../../backend/attributes/system_attribute/system_attribute_model.dart';
 import '../../backend/headers/header_systemreq/header_systemreq_provider.dart';
 import '../../backend/system_requirements/system_requirement_provider.dart';
 import '../../backend/user_requirements/user_requirement_provider.dart';
+import 'package:frontend/frontend_files/ui_constants.dart';
 
 class SystemRequirementsPage extends ConsumerStatefulWidget {
   const SystemRequirementsPage({super.key, required this.title});
@@ -39,8 +40,6 @@ class _SystemRequirementsPage extends ConsumerState<SystemRequirementsPage> {
     final systemRequirements = ref.watch(systemRequirementListProvider);
     final attributes = ref.watch(systemAttributeListProvider);
     final headers = ref.watch(headerSystemReqModelListProvider);
-
-    int uzunluk = 60;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");
@@ -144,7 +143,7 @@ class _SystemRequirementsPage extends ConsumerState<SystemRequirementsPage> {
                                 children: [
                                   /// SG Kodu
                                   Container(
-                                    width: 150,
+                                    width: isimUzunluk,
                                     color: Colors.grey[400],
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16,
@@ -163,7 +162,7 @@ class _SystemRequirementsPage extends ConsumerState<SystemRequirementsPage> {
 
                                   /// Açıklama
                                   Container(
-                                    width: 200,
+                                    width: widthUzunluk,
                                     padding: const EdgeInsets.all(12.0),
                                     child: Text(
                                       req.description.length > uzunluk

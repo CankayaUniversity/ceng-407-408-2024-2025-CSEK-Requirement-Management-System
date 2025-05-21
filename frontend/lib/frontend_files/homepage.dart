@@ -152,7 +152,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1F1F1F),
       appBar: const CustomAppBar(),
       body: Center(
         child: SingleChildScrollView(

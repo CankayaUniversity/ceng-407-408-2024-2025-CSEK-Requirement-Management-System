@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/frontend_files/BaselinePage/baseline_page.dart';
 import 'package:frontend/frontend_files/subSystemReqPage/sub2/subsystem2_requirements_page.dart';
 import 'package:frontend/frontend_files/subSystemReqPage/sub3/subsystem3_requirements_page.dart';
 import 'package:frontend/frontend_files/userReqPage/user_requirements_page.dart';
@@ -58,7 +59,12 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
               (route) => false,
             );
           }),
-          _headerButton("Baseline", () {}),
+          _headerButton("Baseline", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SnapshotPage()),
+            );
+          }),
           _headerButton("Değişimler", () {
             Navigator.push(
               context,

@@ -9,6 +9,7 @@ import '../../../backend/attributes/sub1_attribute/sub1_attribute_provider.dart'
 import '../../../backend/headers/header_sub1req/header_sub1req_provider.dart';
 import '../../../backend/subsystems/subsystem1_requirements/subsystem1_requirement_provider.dart';
 import '../../../backend/system_requirements/system_requirement_provider.dart';
+import 'package:frontend/frontend_files/ui_constants.dart';
 
 class Subsystem1RequirementsPage extends ConsumerStatefulWidget {
   const Subsystem1RequirementsPage({super.key, required this.title});
@@ -40,8 +41,6 @@ class _Subsystem1RequirementsPage
     final subsystem1Requirements = ref.watch(subsystem1RequirementListProvider);
     final attributes = ref.watch(sub1AttributeListProvider);
     final headers = ref.watch(sub1HeaderListProvider);
-
-    int uzunluk = 60;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");
@@ -145,7 +144,7 @@ class _Subsystem1RequirementsPage
                                 children: [
                                   /// DG Kodu
                                   Container(
-                                    width: 150,
+                                    width: isimUzunluk,
                                     color: Colors.grey[400],
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16,
@@ -164,7 +163,7 @@ class _Subsystem1RequirementsPage
 
                                   /// Açıklama
                                   Container(
-                                    width: 200,
+                                    width: widthUzunluk,
                                     padding: const EdgeInsets.all(12.0),
                                     child: Text(
                                       req.description.length > uzunluk

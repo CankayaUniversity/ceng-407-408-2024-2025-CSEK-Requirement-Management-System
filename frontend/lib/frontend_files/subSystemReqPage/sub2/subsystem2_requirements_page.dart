@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/frontend_files/custom_app_bar.dart';
 import 'package:frontend/frontend_files/subSystemReqPage/sub2/subsystem2_requirements_controller.dart'
     as controller;
+import 'package:frontend/frontend_files/ui_constants.dart';
 
 import '../../../backend/attributes/sub2_attribute/sub2_attribute_model.dart';
 import '../../../backend/attributes/sub2_attribute/sub2_attribute_provider.dart';
@@ -40,8 +41,6 @@ class _Subsystem1RequirementsPage
     final subsystem1Requirements = ref.watch(subsystem2RequirementListProvider);
     final attributes = ref.watch(sub2AttributeListProvider);
     final headers = ref.watch(headerSub2ReqModelListProvider);
-
-    int uzunluk = 60;
 
     final isAdmin = roles.contains("admin");
     final isSystemEngineer = roles.contains("system_engineer");
@@ -145,7 +144,7 @@ class _Subsystem1RequirementsPage
                                 children: [
                                   /// DG Kodu
                                   Container(
-                                    width: 150,
+                                    width: isimUzunluk,
                                     color: Colors.grey[400],
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 16,
@@ -164,7 +163,7 @@ class _Subsystem1RequirementsPage
 
                                   /// Açıklama
                                   Container(
-                                    width: 200,
+                                    width: widthUzunluk,
                                     padding: const EdgeInsets.all(12.0),
                                     child: Text(
                                       req.description.length > uzunluk
