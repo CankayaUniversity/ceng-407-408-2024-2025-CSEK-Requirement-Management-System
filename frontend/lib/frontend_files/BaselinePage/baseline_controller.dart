@@ -7,7 +7,8 @@ import 'package:frontend/backend/projects/selected_project_provider.dart';
 import 'package:frontend/frontend_files/loginpage/auth_service.dart';
 
 class SnapshotController {
-  static Future<void> loadUserInfo(Function(String, List<String>) onLoaded) async {
+  static Future<void> loadUserInfo(
+      Function(String, List<String>) onLoaded) async {
     final info = await AuthService.getUserInfo();
     final roles = await AuthService.getUserRoles();
     onLoaded(info?['username'] ?? 'Bilinmiyor', roles);
@@ -18,23 +19,26 @@ class SnapshotController {
 
     return showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Açıklama Girin"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Version açıklaması'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text("Gönder"),
+      builder: (context) =>
+          AlertDialog(
+            title: const Text("Açıklama Girin"),
+            content: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                  labelText: 'Version açıklaması'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context).pop(controller.text.trim()),
+                child: const Text("Gönder"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("İptal"),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("İptal"),
-          ),
-        ],
-      ),
     );
   }
 
@@ -54,7 +58,11 @@ class SnapshotController {
     }
 
     final now = DateTime.now().toUtc();
-    final timestamp = "${now.toIso8601String().split('.').first.replaceAll(':', '-')}" "Z";
+    final timestamp = "${now
+        .toIso8601String()
+        .split('.')
+        .first
+        .replaceAll(':', '-')}" "Z";
 
     final uriBase = "http://localhost:9500";
     final payload = {
@@ -106,9 +114,11 @@ class SnapshotController {
     );
   }
 
-  static Future<List<String>> fetchAvailableBaselines(String projectName) async {
+  static Future<List<String>> fetchAvailableBaselines(
+      String projectName) async {
     final response = await http.get(
-      Uri.parse("http://localhost:9500/snapshot/baselines?projectName=$projectName"),
+      Uri.parse(
+          "http://localhost:9500/snapshot/baselines?projectName=$projectName"),
     );
 
     if (response.statusCode == 200) {
@@ -133,7 +143,8 @@ class SnapshotController {
     }
 
     final projectName = selectedProject.name;
-    final uri = Uri.parse("http://localhost:9500/snapshot/baselines?projectName=$projectName");
+    final uri = Uri.parse(
+        "http://localhost:9500/snapshot/baselines?projectName=$projectName");
 
     try {
       final response = await http.get(uri);
@@ -176,6 +187,59 @@ class SnapshotController {
       throw Exception("Snapshot verisi alınamadı: ${response.statusCode}");
     }
   }
+
+  static String? findRequirementTitleById(Map<String, dynamic> snapshotData, String targetId) {
+    for (final module in snapshotData.values) {
+      if (module is Map<String, dynamic>) {
+        final reqList = module['requirements'];
+        if (reqList is List) {
+          for (final req in reqList) {
+            if (req is Map && req['id'] == targetId) {
+              return req['title'];
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  static Future<Map<String, dynamic>> fetchComparison({
+    required String projectName,
+    required String baseline1,
+    required String baseline2,
+  }) async {
+    final uri = Uri.parse(
+      "http://localhost:9500/snapshot/baseline/compare?projectName=$projectName&baseline1=$baseline1&baseline2=$baseline2",
+    );
+
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception("Karşılaştırma başarısız: ${response.statusCode}");
+    }
+  }
+
+  static String formatBaselineName(String raw) {
+    final parts = raw.split('_');
+    if (parts.length < 2) return raw;
+
+    final name = parts.sublist(0, parts.length - 1).join(' ');
+    final rawTimestamp = parts.last
+        .replaceAll('T', ' ')
+        .replaceAll('Z', '')
+        .replaceAll('-', ':');
+
+    final dateTimeParts = rawTimestamp.split(' ');
+    if (dateTimeParts.length != 2) return "$name – $rawTimestamp";
+
+    final date = dateTimeParts[0].replaceAll(':', '-');
+    final time = dateTimeParts[1];
+
+    return "$name – $date $time";
+  }
+
 
 
 }

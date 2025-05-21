@@ -23,6 +23,14 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
     "GÜVENLİK-GEREKSİNİMLERİ": "subsystem3-requirements",
   };
 
+  final List<String> desiredModuleOrder = [
+    "user-requirements",
+    "system-requirements",
+    "subsystem1-requirements",
+    "subsystem2-requirements",
+    "subsystem3-requirements",
+  ];
+
   String? username;
   List<String> roles = [];
 
@@ -165,7 +173,7 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
             itemBuilder: (context, index) {
               final baselineName = baselines[index];
               return ListTile(
-                title: Text(baselineName),
+                title: Text(controller.SnapshotController.formatBaselineName(baselineName)),
                 onTap: () async {
                   try {
                     final snapshotData = await controller.SnapshotController.fetchSnapshotContent(
@@ -228,25 +236,25 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
                   Text("👤 Oluşturan: $username"),
                   const Divider(),
                   const SizedBox(height: 8),
-                  ...snapshotData.entries
-                      .where((e) => e.key != "baseline-info")
-                      .map((entry) {
-                    final moduleName = entry.key;
-                    final jsonContent = entry.value;
+                  ...desiredModuleOrder
+                      .where((key) => snapshotData.containsKey(key))
+                      .map((moduleKey) {
+                    final displayName = moduleOptions.entries
+                        .firstWhere((e) => e.value == moduleKey, orElse: () => MapEntry(moduleKey, moduleKey))
+                        .key;
+                    final jsonContent = snapshotData[moduleKey];
+
 
                     return ExpansionTile(
-                      title: Text(moduleName),
+                      title: Text(displayName),
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: SelectableText(
-                            const JsonEncoder.withIndent('  ').convert(
-                                jsonContent),
-                            style: const TextStyle(fontSize: 12),
-                          ),
+                          child: buildModuleContent(moduleKey, jsonContent, snapshotData),
                         ),
                       ],
                     );
+
                   }).toList(),
                 ],
               ),
@@ -254,7 +262,7 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text("Kapat"),
             ),
           ],
@@ -262,6 +270,191 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
       },
     );
   }
+
+  void showBaselineCompareDialog(BuildContext context, WidgetRef ref) {
+    final selectedProject = ref.read(selectedProjectProvider);
+    if (selectedProject == null) return;
+
+    controller.SnapshotController.fetchBaselines(
+      context: context,
+      ref: ref,
+      onLoaded: (List<String> baselines) {
+        showDialog(
+          context: context,
+          builder: (dialogContext) {
+            List<String> selected = [];
+
+            return AlertDialog(
+              title: const Text("Karşılaştırılacak Baseline'ları Seç"),
+              content: SizedBox(
+                width: 500,
+                height: 400,
+                child: StatefulBuilder(
+                  builder: (context, setState) => Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: baselines.length,
+                          itemBuilder: (context, index) {
+                            final name = baselines[index];
+                            return CheckboxListTile(
+                              title: Text(controller.SnapshotController.formatBaselineName(name)),
+                              value: selected.contains(name),
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value == true && selected.length < 2) {
+                                    selected.add(name);
+                                  } else {
+                                    selected.remove(name);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.of(dialogContext).pop(),
+                            child: const Text("İptal"),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: selected.length == 2
+                                ? () async {
+                              final b1 = selected[0];
+                              final b2 = selected[1];
+                              final parentContext = Navigator.of(context).context;
+
+                              Navigator.of(dialogContext).pop();
+
+                              try {
+                                final result = await controller.SnapshotController.fetchComparison(
+                                  projectName: selectedProject.name,
+                                  baseline1: b1,
+                                  baseline2: b2,
+                                );
+
+                                showComparisonResultDialog(parentContext, result);
+                              } catch (e) {
+                                showDialog(
+                                  context: parentContext,
+                                  builder: (_) => AlertDialog(
+                                    title: const Text("Hata"),
+                                    content: Text("Karşılaştırma alınamadı: $e"),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(parentContext).pop(),
+                                        child: const Text("Tamam"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
+                                : null,
+                            child: const Text("Karşılaştır"),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  void showComparisonResultDialog(BuildContext context, Map<String, dynamic> data) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Karşılaştırma Sonucu"),
+        content: SizedBox(
+          width: 600,
+          height: 500,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: desiredModuleOrder
+                  .where((key) => data.containsKey(key))
+                  .map((moduleKey) {
+                final value = data[moduleKey];
+
+                final added = value["added"] as List<dynamic>;
+                final removed = value["removed"] as List<dynamic>;
+                final updated = value["updated"] as List<dynamic>;
+
+                final displayName = moduleOptions.entries
+                    .firstWhere((e) => e.value == moduleKey,
+                    orElse: () => MapEntry(moduleKey, moduleKey))
+                    .key;
+
+                final hasChanges =
+                    added.isNotEmpty || removed.isNotEmpty || updated.isNotEmpty;
+
+                return ExpansionTile(
+                  title: Text(displayName),
+                  children: hasChanges
+                      ? [
+                    if (added.isNotEmpty) ...[
+                      const Text("➕ Eklenenler:"),
+                      ...added.map((e) =>
+                          Text("- ${e['title']}: ${e['description']}")),
+                    ],
+                    if (removed.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      const Text("➖ Kaldırılanlar:"),
+                      ...removed.map((e) =>
+                          Text("- ${e['title']}: ${e['description']}")),
+                    ],
+                    if (updated.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      const Text("🔄 Güncellenenler:"),
+                      ...updated.map((e) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("• ${e['before']['title']}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold)),
+                          Text(
+                              "  - Önce: ${e['before']['description']}"),
+                          Text(
+                              "  - Sonra: ${e['after']['description']}"),
+                        ],
+                      )),
+                    ],
+                  ]
+                      : [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text("⚖️ Bu modülde değişiklik yok."),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Kapat"),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -311,6 +504,13 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
                       );
                     },// ...
                   ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.compare_arrows),
+                    title: const Text("Baseline Karşılaştır"),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () => showBaselineCompareDialog(context, ref),
+                  ),
                 ],
               ),
             ),
@@ -319,4 +519,60 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
       ),
     );
   }
+
+  Widget buildModuleContent(String moduleKey, Map<String, dynamic> jsonContent, Map<String, dynamic> snapshotData) {
+    final requirements = jsonContent['requirements'] as List<dynamic>? ?? [];
+    final attributes = jsonContent['attributes'] as List<dynamic>? ?? [];
+    final headers = jsonContent['headers'] as List<dynamic>? ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...requirements.map((req) {
+          final reqId = req['id'];
+          final reqAttributes = attributes.where((attr) {
+            final keys = attr.keys;
+            final matchingKey = keys.firstWhere(
+                    (key) => key.toLowerCase().contains('id') && key != 'id',
+                orElse: () => '');
+            return attr[matchingKey] == reqId;
+          }).toList();
+
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("🎯 ${req['title']}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text("📝 ${req['description']}"),
+                  Text("👤 Oluşturan: ${req['createdBy']}"),
+                  if (moduleKey != 'user-requirements') ...[
+                    const SizedBox(height: 4),
+                    Builder(builder: (context) {
+                      final linkedId = req['user_req_id'] ?? req['systemRequirementId'];
+                      final linkedTitle = controller.SnapshotController.findRequirementTitleById(snapshotData, linkedId);
+                      return Text(
+                        "🔗 Bağlı Olduğu Gereksinim: ${linkedTitle ?? linkedId}",
+                        style: const TextStyle(fontSize: 12,color: Colors.grey),
+                      );
+                    }),
+                  ],
+                  const SizedBox(height: 6),
+                  if (reqAttributes.isNotEmpty) const Divider(),
+                  ...reqAttributes.map((attr) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: Text("🔹 ${attr['title'] ?? attr['header']}: ${attr['description']}"),
+                  )),
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+
 }
