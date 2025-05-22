@@ -73,6 +73,7 @@ class _ChangeLogPageState extends ConsumerState<ChangeLogPage> {
 
     if (!isAdmin && !isSystemEngineer) {
       return const Scaffold(
+        appBar: CustomAppBar(),
         body: Center(child: Text("Bu sayfayı görüntüleme izniniz yok.")),
       );
     }
