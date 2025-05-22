@@ -8,10 +8,10 @@
 <body>
 <div class="login-container">
     <img src="${url.resourcesPath}/img/logo.png" alt="CSEK Logo" class="logo">
-    <h1>CSEK Requirement Management System</h1>
+    <h1>CSEK Gereksinim Yönetim Sistemi</h1>
     <form action="${url.loginAction}" method="post">
-        <input type="text" name="username" placeholder="Username" autofocus>
-        <input type="password" name="password" placeholder="Password">
+        <input type="text" name="username" placeholder="Kullanıcı Adı" autofocus>
+        <input type="password" name="password" placeholder="Parola">
         <input type="submit" value="Log In">
     </form>
 </div>
