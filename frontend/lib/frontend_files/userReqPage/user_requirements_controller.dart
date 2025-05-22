@@ -202,12 +202,16 @@ class UserRequirementsController {
     required List<UserAttributeModel> attributes,
     required String changeType,
   }) async {
-    // İlgili requirement'a ait attribute'ları filtrele
     final relatedAttributes =
         attributes.where((a) => a.userRequirementId == req.id).toList();
 
-    // Başlıkları ve attribute açıklamalarını topla
-    final oldHeaderTitles = headers.map((h) => h.header ?? '').toList();
+    final usedHeaders =
+        headers.where((header) {
+          return relatedAttributes.any((attr) => attr.header == header.header);
+        }).toList();
+
+    final oldHeaderTitles = usedHeaders.map((h) => h.header ?? '').toList();
+
     final oldAttributeDescriptions =
         relatedAttributes.map((a) => a.description ?? '').toList();
 
@@ -693,7 +697,7 @@ class UserRequirementsController {
     );
   }
 
-  static Future<String?> CALISMIOshowAddHeaderDialog(
+  static Future<String?> CALISMIYORshowAddHeaderDialog(
     BuildContext context,
     WidgetRef ref,
     String username,

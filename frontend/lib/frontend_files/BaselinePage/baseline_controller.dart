@@ -8,7 +8,8 @@ import 'package:frontend/frontend_files/loginpage/auth_service.dart';
 
 class SnapshotController {
   static Future<void> loadUserInfo(
-      Function(String, List<String>) onLoaded) async {
+    Function(String, List<String>) onLoaded,
+  ) async {
     final info = await AuthService.getUserInfo();
     final roles = await AuthService.getUserRoles();
     onLoaded(info?['username'] ?? 'Bilinmiyor', roles);
@@ -19,18 +20,19 @@ class SnapshotController {
 
     return showDialog<String>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
+      builder:
+          (context) => AlertDialog(
             title: const Text("Açıklama Girin"),
             content: TextField(
               controller: controller,
               decoration: const InputDecoration(
-                  labelText: 'Version açıklaması'),
+                labelText: 'Version açıklaması',
+              ),
             ),
             actions: [
               TextButton(
-                onPressed: () =>
-                    Navigator.of(context).pop(controller.text.trim()),
+                onPressed:
+                    () => Navigator.of(context).pop(controller.text.trim()),
                 child: const Text("Gönder"),
               ),
               TextButton(
@@ -58,11 +60,9 @@ class SnapshotController {
     }
 
     final now = DateTime.now().toUtc();
-    final timestamp = "${now
-        .toIso8601String()
-        .split('.')
-        .first
-        .replaceAll(':', '-')}" "Z";
+    final timestamp =
+        "${now.toIso8601String().split('.').first.replaceAll(':', '-')}"
+        "Z";
 
     final uriBase = "http://localhost:9500";
     final payload = {
@@ -75,10 +75,14 @@ class SnapshotController {
 
     final Map<String, String> endpoints = {
       "user-requirements": "/user-requirements/baseline/send/user-requirements",
-      "system-requirements": "/system-requirements/baseline/send/system-requirements",
-      "subsystem1-requirements": "/subsystem-requirements/baseline/send/subsystem1-requirements",
-      "subsystem2-requirements": "/subsystem-requirements/baseline/send/subsystem2-requirements",
-      "subsystem3-requirements": "/subsystem-requirements/baseline/send/subsystem3-requirements",
+      "system-requirements":
+          "/system-requirements/baseline/send/system-requirements",
+      "subsystem1-requirements":
+          "/subsystem-requirements/baseline/send/subsystem1-requirements",
+      "subsystem2-requirements":
+          "/subsystem-requirements/baseline/send/subsystem2-requirements",
+      "subsystem3-requirements":
+          "/subsystem-requirements/baseline/send/subsystem3-requirements",
     };
 
     bool allSuccess = true;
@@ -115,10 +119,12 @@ class SnapshotController {
   }
 
   static Future<List<String>> fetchAvailableBaselines(
-      String projectName) async {
+    String projectName,
+  ) async {
     final response = await http.get(
       Uri.parse(
-          "http://localhost:9500/snapshot/baselines?projectName=$projectName"),
+        "http://localhost:9500/snapshot/baselines?projectName=$projectName",
+      ),
     );
 
     if (response.statusCode == 200) {
@@ -144,7 +150,8 @@ class SnapshotController {
 
     final projectName = selectedProject.name;
     final uri = Uri.parse(
-        "http://localhost:9500/snapshot/baselines?projectName=$projectName");
+      "http://localhost:9500/snapshot/baselines?projectName=$projectName",
+    );
 
     try {
       final response = await http.get(uri);
@@ -156,9 +163,9 @@ class SnapshotController {
         throw Exception("Sunucu hatası: ${response.statusCode}");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Hata: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Hata: $e")));
     }
   }
 
@@ -188,7 +195,10 @@ class SnapshotController {
     }
   }
 
-  static String? findRequirementTitleById(Map<String, dynamic> snapshotData, String targetId) {
+  static String? findRequirementTitleById(
+    Map<String, dynamic> snapshotData,
+    String targetId,
+  ) {
     for (final module in snapshotData.values) {
       if (module is Map<String, dynamic>) {
         final reqList = module['requirements'];
@@ -239,7 +249,4 @@ class SnapshotController {
 
     return "$name – $date $time";
   }
-
-
-
 }

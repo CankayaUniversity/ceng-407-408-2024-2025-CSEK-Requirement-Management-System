@@ -198,7 +198,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                         const SizedBox(height: 16),
 
                         const Text(
-                          "CSEK Requirement Management System",
+                          "CSEK Gereksinim Sistemi",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 22,

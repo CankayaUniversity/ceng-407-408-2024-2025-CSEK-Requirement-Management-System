@@ -274,7 +274,14 @@ class SystemRequirementsController {
   }) async {
     final relatedAttributes =
         attributes.where((a) => a.systemRequirementId == req.id).toList();
-    final oldHeaderTitles = headers.map((h) => h.header ?? '').toList();
+
+    final usedHeaders =
+        headers.where((header) {
+          return relatedAttributes.any((attr) => attr.header == header.header);
+        }).toList();
+
+    final oldHeaderTitles = usedHeaders.map((h) => h.header ?? '').toList();
+
     final oldAttributeDescriptions =
         relatedAttributes.map((a) => a.description ?? '').toList();
 

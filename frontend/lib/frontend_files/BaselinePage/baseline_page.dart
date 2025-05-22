@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -423,151 +424,410 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
     Map<String, dynamic> data,
   ) {
     List<Map<String, dynamic>> parseList(dynamic raw) {
-      print('parseList() gelen veri tipi: ${raw.runtimeType}');
-
       try {
         if (raw is List) {
           return raw
               .where((e) => e is Map)
-              .map<Map<String, dynamic>>(
-                (e) => Map<String, dynamic>.from(e as Map),
-              )
+              .map((e) => Map<String, dynamic>.from(e))
               .toList();
         }
-
         if (raw is String) {
           final decoded = jsonDecode(raw);
           if (decoded is List) {
             return decoded
                 .where((e) => e is Map)
-                .map<Map<String, dynamic>>(
-                  (e) => Map<String, dynamic>.from(e as Map),
-                )
+                .map((e) => Map<String, dynamic>.from(e))
                 .toList();
           }
         }
       } catch (e) {
         print('parseList HATA: $e');
       }
-
       return [];
     }
 
     showDialog(
       context: context,
+      barrierColor: Colors.black.withOpacity(0.7),
       builder:
-          (context) => AlertDialog(
-            title: const Text("Karşılaştırma Sonucu"),
-            content: SizedBox(
-              width: 600,
-              height: 500,
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      desiredModuleOrder.where((key) => data.containsKey(key)).map((
-                        moduleKey,
-                      ) {
-                        final rawValue = data[moduleKey];
-                        Map<String, dynamic> value;
+          (context) => Dialog(
+            backgroundColor: Colors.transparent,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                child: Container(
+                  width: 650,
+                  height: 550,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.white24, width: 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Karşılaştırma Sonucu",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children:
+                                desiredModuleOrder.where((key) => data.containsKey(key)).map((
+                                  moduleKey,
+                                ) {
+                                  final rawValue = data[moduleKey];
+                                  Map<String, dynamic> value;
 
-                        if (rawValue is String) {
-                          try {
-                            value = jsonDecode(rawValue);
-                          } catch (e) {
-                            value = {};
-                            print('jsonDecode hatası: $e');
-                          }
-                        } else if (rawValue is Map<String, dynamic>) {
-                          value = rawValue;
-                        } else {
-                          value = {};
-                        }
+                                  if (rawValue is String) {
+                                    try {
+                                      value = jsonDecode(rawValue);
+                                    } catch (e) {
+                                      value = {};
+                                      print('jsonDecode hatası: $e');
+                                    }
+                                  } else if (rawValue is Map<String, dynamic>) {
+                                    value = rawValue;
+                                  } else {
+                                    value = {};
+                                  }
 
-                        final added = parseList(value["added"]);
-                        final removed = parseList(value["removed"]);
-                        final updated = parseList(value["updated"]);
+                                  final added = parseList(value["added"]);
+                                  final removed = parseList(value["removed"]);
+                                  final updated = parseList(value["updated"]);
 
-                        final displayName =
-                            moduleOptions.entries
-                                .firstWhere(
-                                  (e) => e.value == moduleKey,
-                                  orElse: () => MapEntry(moduleKey, moduleKey),
-                                )
-                                .key;
+                                  final displayName =
+                                      moduleOptions.entries
+                                          .firstWhere(
+                                            (e) => e.value == moduleKey,
+                                            orElse:
+                                                () => MapEntry(
+                                                  moduleKey,
+                                                  moduleKey,
+                                                ),
+                                          )
+                                          .key;
 
-                        final hasChanges =
-                            added.isNotEmpty ||
-                            removed.isNotEmpty ||
-                            updated.isNotEmpty;
+                                  final hasChanges =
+                                      added.isNotEmpty ||
+                                      removed.isNotEmpty ||
+                                      updated.isNotEmpty;
 
-                        return ExpansionTile(
-                          title: Text(displayName),
-                          children:
-                              hasChanges
-                                  ? [
-                                    if (added.isNotEmpty) ...[
-                                      const Text("➕ Eklenenler:"),
-                                      ...added.map(
-                                        (e) => Text(
-                                          "- ${e['title']}: ${e['description']}",
-                                        ),
+                                  return AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    margin: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF2A2A2A),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Theme(
+                                      data: ThemeData().copyWith(
+                                        dividerColor: Colors.transparent,
                                       ),
-                                    ],
-                                    if (removed.isNotEmpty) ...[
-                                      const SizedBox(height: 8),
-                                      const Text("➖ Kaldırılanlar:"),
-                                      ...removed.map(
-                                        (e) => Text(
-                                          "- ${e['title']}: ${e['description']}",
+                                      child: ExpansionTile(
+                                        collapsedIconColor: Colors.white70,
+                                        iconColor: Colors.white,
+                                        title: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            displayName,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                    if (updated.isNotEmpty) ...[
-                                      const SizedBox(height: 8),
-                                      const Text("🔄 Güncellenenler:"),
-                                      ...updated.map(
-                                        (e) => Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "• ${e['before']['title']}",
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Text(
-                                              "  - Önce: ${e['before']['description']}",
-                                            ),
-                                            Text(
-                                              "  - Sonra: ${e['after']['description']}",
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ]
-                                  : [
-                                    const Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "⚖️ Bu modülde değişiklik yok.",
+                                        children:
+                                            hasChanges
+                                                ? [
+                                                  if (added.isNotEmpty) ...[
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: const [
+                                                            Icon(
+                                                              Icons.add_circle,
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
+                                                            SizedBox(width: 6),
+                                                            Text(
+                                                              "Eklenenler",
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white70,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    ...added.map(
+                                                      (e) => Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              left: 20,
+                                                              top: 4,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment
+                                                                  .centerLeft,
+                                                          child: Text(
+                                                            "- ${e['title']}: ${e['description']}",
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  if (removed.isNotEmpty) ...[
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: const [
+                                                            Icon(
+                                                              Icons
+                                                                  .remove_circle,
+                                                              color:
+                                                                  Colors
+                                                                      .redAccent,
+                                                            ),
+                                                            SizedBox(width: 6),
+                                                            Text(
+                                                              "Kaldırılanlar",
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white70,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    ...removed.map(
+                                                      (e) => Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              left: 20,
+                                                              top: 4,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment
+                                                                  .centerLeft,
+                                                          child: Text(
+                                                            "- ${e['title']}: ${e['description']}",
+                                                            style:
+                                                                const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  if (updated.isNotEmpty) ...[
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: const [
+                                                            Icon(
+                                                              Icons.update,
+                                                              color:
+                                                                  Colors
+                                                                      .amberAccent,
+                                                            ),
+                                                            SizedBox(width: 6),
+                                                            Text(
+                                                              "Güncellenenler",
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white70,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    ...updated.map(
+                                                      (e) => Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              left: 20,
+                                                              top: 4,
+                                                            ),
+                                                        child: Align(
+                                                          alignment:
+                                                              Alignment
+                                                                  .centerLeft,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                "• ${e['before']['title']}",
+                                                                style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                "  - Önce: ${e['before']['description']}",
+                                                                style: const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white70,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                "  - Sonra: ${e['after']['description']}",
+                                                                style: const TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .white70,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ]
+                                                : [
+                                                  const Padding(
+                                                    padding: EdgeInsets.all(
+                                                      12.0,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.balance,
+                                                          color:
+                                                              Colors.blueGrey,
+                                                        ),
+                                                        SizedBox(width: 6),
+                                                        Text(
+                                                          "Bu modülde değişiklik yok.",
+                                                          style: TextStyle(
+                                                            color:
+                                                                Colors.white70,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
                                       ),
                                     ),
-                                  ],
-                        );
-                      }).toList(),
+                                  );
+                                }).toList(),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          label: const Text(
+                            "Kapat",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("Kapat"),
-              ),
-            ],
           ),
+    );
+  }
+
+  Widget buildSectionTitle(IconData icon, String text, Color color) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      child: Row(
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: const TextStyle(color: Colors.white70, fontSize: 15),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildEntryText(Map<String, dynamic> e) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 4),
+      child: Text(
+        "- ${e['title']}: ${e['description']}",
+        style: const TextStyle(color: Colors.white),
+      ),
     );
   }
 
