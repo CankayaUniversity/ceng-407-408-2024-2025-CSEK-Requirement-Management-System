@@ -27,6 +27,10 @@ import 'package:frontend/backend/subsystems/subsystem1_requirements/subsystem1_r
 import 'package:frontend/backend/subsystems/subsystem2_requirements/subsystem2_requirement_provider.dart';
 import 'package:frontend/backend/subsystems/subsystem3_requirements/subsystem3_requirement_provider.dart';
 
+import 'package:frontend/frontend_files/subSystemReqPage/sub1/subsystem1_requirements_controller.dart';
+import 'package:frontend/frontend_files/subSystemReqPage/sub2/subsystem2_requirements_controller.dart';
+import 'package:frontend/frontend_files/subSystemReqPage/sub3/subsystem3_requirements_controller.dart';
+
 class SystemRequirementsController {
   static Future<void> loadUserInfo(
     Function(String, List<String>) onLoaded,

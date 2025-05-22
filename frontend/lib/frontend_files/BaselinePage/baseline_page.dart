@@ -422,6 +422,37 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
     BuildContext context,
     Map<String, dynamic> data,
   ) {
+    List<Map<String, dynamic>> parseList(dynamic raw) {
+      print('parseList() gelen veri tipi: ${raw.runtimeType}');
+
+      try {
+        if (raw is List) {
+          return raw
+              .where((e) => e is Map)
+              .map<Map<String, dynamic>>(
+                (e) => Map<String, dynamic>.from(e as Map),
+              )
+              .toList();
+        }
+
+        if (raw is String) {
+          final decoded = jsonDecode(raw);
+          if (decoded is List) {
+            return decoded
+                .where((e) => e is Map)
+                .map<Map<String, dynamic>>(
+                  (e) => Map<String, dynamic>.from(e as Map),
+                )
+                .toList();
+          }
+        }
+      } catch (e) {
+        print('parseList HATA: $e');
+      }
+
+      return [];
+    }
+
     showDialog(
       context: context,
       builder:
@@ -437,11 +468,25 @@ class _SnapshotPageState extends ConsumerState<SnapshotPage> {
                       desiredModuleOrder.where((key) => data.containsKey(key)).map((
                         moduleKey,
                       ) {
-                        final value = data[moduleKey];
+                        final rawValue = data[moduleKey];
+                        Map<String, dynamic> value;
 
-                        final added = value["added"] as List<dynamic>;
-                        final removed = value["removed"] as List<dynamic>;
-                        final updated = value["updated"] as List<dynamic>;
+                        if (rawValue is String) {
+                          try {
+                            value = jsonDecode(rawValue);
+                          } catch (e) {
+                            value = {};
+                            print('jsonDecode hatası: $e');
+                          }
+                        } else if (rawValue is Map<String, dynamic>) {
+                          value = rawValue;
+                        } else {
+                          value = {};
+                        }
+
+                        final added = parseList(value["added"]);
+                        final removed = parseList(value["removed"]);
+                        final updated = parseList(value["updated"]);
 
                         final displayName =
                             moduleOptions.entries

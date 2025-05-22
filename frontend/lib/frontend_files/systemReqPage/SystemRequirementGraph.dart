@@ -5,12 +5,14 @@ class SystemRequirementGraph extends StatelessWidget {
   final String kgTitle;
   final String sgTitle;
   final List<String> subsystemTitles;
+  final Function(String)? onNodeTap;
 
   const SystemRequirementGraph({
     super.key,
     required this.kgTitle,
     required this.sgTitle,
     required this.subsystemTitles,
+    this.onNodeTap,
   });
 
   @override
@@ -44,7 +46,11 @@ class SystemRequirementGraph extends StatelessWidget {
             TreeEdgeRenderer(builder),
           ),
           builder: (Node node) {
-            return nodeWidget(node.key!.value as String);
+            final title = node.key!.value as String;
+            return GestureDetector(
+              onTap: () => onNodeTap?.call(title),
+              child: nodeWidget(title),
+            );
           },
         ),
       ),
@@ -55,7 +61,7 @@ class SystemRequirementGraph extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFF2E3440), // koyu mavi-gri ton
+        color: const Color(0xFF2E3440),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFF81A1C1), width: 1.5),
         boxShadow: [
@@ -69,7 +75,7 @@ class SystemRequirementGraph extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          color: Color(0xFFD8DEE9), // Açık gri metin
+          color: Color(0xFFD8DEE9),
           fontWeight: FontWeight.bold,
           fontSize: 14,
           letterSpacing: 1,

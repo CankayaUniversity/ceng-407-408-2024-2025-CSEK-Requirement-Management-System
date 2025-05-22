@@ -69,7 +69,7 @@ class SubsystemRequirementGraph extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          color: Color(0xFFD8DEE9), 
+          color: Color(0xFFD8DEE9),
           fontWeight: FontWeight.bold,
           fontSize: 14,
           letterSpacing: 1,
