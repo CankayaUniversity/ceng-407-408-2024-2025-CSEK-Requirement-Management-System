@@ -22,8 +22,6 @@ class ExportService {
 
         val pdfBytes = PdfGenerator.generatePdfFromBaseline(response)
 
-        println("✅ PDF başarıyla kaydedildi:")
-
         return pdfBytes
     }
 
@@ -38,7 +36,6 @@ class ExportService {
 
         val wordBytes = WordGenerator.generateWordFromBaseline(response, request.wordStyle)
 
-        println("✅ Word (.docx) başarıyla oluşturuldu [style=${request.wordStyle}]")
 
         return wordBytes
     }

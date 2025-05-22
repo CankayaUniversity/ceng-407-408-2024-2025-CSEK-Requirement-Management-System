@@ -39,8 +39,9 @@ object PdfGenerator {
         val projectName = infoJson["projectName"]?.asText() ?: ""
         val baselineName = infoJson["baselineName"]?.asText() ?: ""
         val username = infoJson["username"]?.asText() ?: ""
-        val timestamp = infoJson["timestamp"]?.asText() ?: ""
-        val formattedTimestamp = OffsetDateTime.parse(timestamp).toLocalDate().toString()
+        val timestampRaw = infoJson["timestamp"]?.asText() ?: ""
+        val correctedTimestamp = timestampRaw.replaceRange(11, 19, timestampRaw.substring(11, 19).replace('-', ':'))
+        val formattedTimestamp = OffsetDateTime.parse(correctedTimestamp).toLocalDate().toString()
         val localDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
 
         val logoStream = javaClass.classLoader.getResourceAsStream("static/logo.png")
