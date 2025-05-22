@@ -29,29 +29,39 @@ class ChangeLogController {
     DateTime? endDate,
     String? exactTitle,
   }) {
-    return logs.where((log) {
-      final matchesProject =
-          selectedProjectId == null || log.projectId == selectedProjectId;
-      final matchesPrefix =
-          prefix == null || (log.oldTitle ?? '').startsWith(prefix);
-      final matchesType = changeType == null || log.changeType == changeType;
-      final matchesModifiedBy =
-          modifiedBy == null || log.modifiedBy == modifiedBy;
-      final matchesDate =
-          (startDate == null ||
-              (log.modifiedAt?.isAfter(startDate) ?? false)) &&
-          (endDate == null || (log.modifiedAt?.isBefore(endDate) ?? false));
-      final matchesExact =
-          (prefix != null && exactTitle != null && exactTitle.isNotEmpty)
-              ? log.oldTitle == '$prefix-$exactTitle'
-              : true;
+    final filtered =
+        logs.where((log) {
+          final matchesProject =
+              selectedProjectId == null || log.projectId == selectedProjectId;
+          final matchesPrefix =
+              prefix == null || (log.oldTitle ?? '').startsWith(prefix);
+          final matchesType =
+              changeType == null || log.changeType == changeType;
+          final matchesModifiedBy =
+              modifiedBy == null || log.modifiedBy == modifiedBy;
+          final matchesDate =
+              (startDate == null ||
+                  (log.modifiedAt?.isAfter(startDate) ?? false)) &&
+              (endDate == null || (log.modifiedAt?.isBefore(endDate) ?? false));
+          final matchesExact =
+              (prefix != null && exactTitle != null && exactTitle.isNotEmpty)
+                  ? log.oldTitle == '$prefix-$exactTitle'
+                  : true;
 
-      return matchesProject &&
-          matchesPrefix &&
-          matchesType &&
-          matchesModifiedBy &&
-          matchesDate &&
-          matchesExact;
-    }).toList();
+          return matchesProject &&
+              matchesPrefix &&
+              matchesType &&
+              matchesModifiedBy &&
+              matchesDate &&
+              matchesExact;
+        }).toList();
+
+    filtered.sort((a, b) {
+      final aDate = a.modifiedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bDate = b.modifiedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      return bDate.compareTo(aDate);
+    });
+
+    return filtered;
   }
 }

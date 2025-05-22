@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/frontend_files/BaselinePage/baseline_page.dart';
+import 'package:frontend/frontend_files/ExportPage/export_page.dart';
 import 'package:frontend/frontend_files/subSystemReqPage/sub2/subsystem2_requirements_page.dart';
 import 'package:frontend/frontend_files/subSystemReqPage/sub3/subsystem3_requirements_page.dart';
 import 'package:frontend/frontend_files/userReqPage/user_requirements_page.dart';
@@ -30,12 +31,20 @@ class CustomAppBar extends ConsumerStatefulWidget
 class _CustomAppBarState extends ConsumerState<CustomAppBar> {
   late Future<Map<String, dynamic>?> _userFuture;
   late Future<List<String>> _rolesFuture;
+  String? username;
+  List<String> roles = [];
 
   @override
   void initState() {
     super.initState();
     _userFuture = AuthService.getUserInfo();
     _rolesFuture = AuthService.getUserRoles();
+    loadUserInfo((u, r) {
+      setState(() {
+        username = u;
+        roles = r;
+      });
+    });
   }
 
   @override
@@ -43,6 +52,9 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
     final selectedProject = ref.watch(selectedProjectProvider);
     final allProjects = ref.watch(projectsNotifierProvider);
     final selectedModule = ref.watch(selectedModuleLabelProvider);
+    final isAdmin = roles.contains("admin");
+    final isSystemEngineer = roles.contains("system_engineer");
+    final canEdit = isAdmin || isSystemEngineer;
 
     return AppBar(
       backgroundColor: Colors.grey[700],
@@ -59,19 +71,26 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
               (route) => false,
             );
           }),
-          _headerButton("Baseline", () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SnapshotPage()),
-            );
-          }),
+          isAdmin
+              ? _headerButton("Baseline", () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SnapshotPage()),
+                );
+              })
+              : _disabledHeaderButton("Baseline"),
           _headerButton("Değişimler", () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ChangeLogPage()),
+              MaterialPageRoute(builder: (_) => const ChangeLogPage()),
             );
           }),
-          _headerButton("Dışa Aktar", () {}),
+          _headerButton("Dışa Aktar", () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ExportPage()),
+            );
+          }),
 
           if (allProjects.isNotEmpty)
             Padding(
@@ -166,82 +185,100 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
 
   Widget _menuButton(BuildContext context) {
     final label = ref.watch(selectedModuleLabelProvider) ?? "Modül Seç";
+    final selectedProject = ref.watch(selectedProjectProvider);
+
+    final isEnabled = selectedProject != null;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
-      child: PopupMenuButton<String>(
-        onSelected: (value) {
-          late Widget page;
-          late String label;
-          switch (value) {
-            case 'user':
-              page = const UserRequirementsPage(
-                title: 'Kullanıcı Gereksinimleri',
-              );
-              label = "Kullanıcı Gereksinimleri";
-              break;
-            case 'system':
-              page = const SystemRequirementsPage(
-                title: 'Sistem Gereksinimleri',
-              );
-              label = "Sistem Gereksinimleri";
-              break;
-            case 'donanım':
-              page = const Subsystem1RequirementsPage(
-                title: 'Donanım Gereksinimleri',
-              );
-              label = "Donanım Gereksinimleri";
-              break;
-            case 'yazılım':
-              page = const Subsystem2RequirementsPage(
-                title: 'Yazılım Gereksinimleri',
-              );
-              label = "Yazılım Gereksinimleri";
-              break;
-            case 'güvenlik':
-              page = const Subsystem3RequirementsPage(
-                title: 'Güvenlik Gereksinimleri',
-              );
-              label = "Güvenlik Gereksinimleri";
-              break;
-            default:
-              return;
-          }
-          ref.read(selectedModuleLabelProvider.notifier).state = label;
-          Navigator.push(context, MaterialPageRoute(builder: (_) => page));
-        },
-        itemBuilder:
-            (context) => const [
-              PopupMenuItem(
-                value: 'user',
-                child: Text("Kullanıcı Gereksinimleri"),
+      child: IgnorePointer(
+        ignoring: !isEnabled,
+        child: Opacity(
+          opacity: isEnabled ? 1.0 : 0.4, // Pasif görünüm
+          child: Tooltip(
+            message: isEnabled ? "Modül Seç" : "Lütfen önce bir proje seçin",
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                late Widget page;
+                late String label;
+                switch (value) {
+                  case 'user':
+                    page = const UserRequirementsPage(
+                      title: 'Kullanıcı Gereksinimleri',
+                    );
+                    label = "Kullanıcı Gereksinimleri";
+                    break;
+                  case 'system':
+                    page = const SystemRequirementsPage(
+                      title: 'Sistem Gereksinimleri',
+                    );
+                    label = "Sistem Gereksinimleri";
+                    break;
+                  case 'donanım':
+                    page = const Subsystem1RequirementsPage(
+                      title: 'Donanım Gereksinimleri',
+                    );
+                    label = "Donanım Gereksinimleri";
+                    break;
+                  case 'yazılım':
+                    page = const Subsystem2RequirementsPage(
+                      title: 'Yazılım Gereksinimleri',
+                    );
+                    label = "Yazılım Gereksinimleri";
+                    break;
+                  case 'güvenlik':
+                    page = const Subsystem3RequirementsPage(
+                      title: 'Güvenlik Gereksinimleri',
+                    );
+                    label = "Güvenlik Gereksinimleri";
+                    break;
+                  default:
+                    return;
+                }
+                ref.read(selectedModuleLabelProvider.notifier).state = label;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => page),
+                );
+              },
+              itemBuilder:
+                  (context) => const [
+                    PopupMenuItem(
+                      value: 'user',
+                      child: Text("Kullanıcı Gereksinimleri"),
+                    ),
+                    PopupMenuItem(
+                      value: 'system',
+                      child: Text("Sistem Gereksinimleri"),
+                    ),
+                    PopupMenuItem(
+                      value: 'donanım',
+                      child: Text("Donanım Gereksinimleri"),
+                    ),
+                    PopupMenuItem(
+                      value: 'yazılım',
+                      child: Text("Yazılım Gereksinimleri"),
+                    ),
+                    PopupMenuItem(
+                      value: 'güvenlik',
+                      child: Text("Güvenlik Gereksinimleri"),
+                    ),
+                  ],
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 14, color: Colors.white),
+                ),
               ),
-              PopupMenuItem(
-                value: 'system',
-                child: Text("Sistem Gereksinimleri"),
-              ),
-              PopupMenuItem(
-                value: 'donanım',
-                child: Text("Donanım Gereksinimleri"),
-              ),
-              PopupMenuItem(
-                value: 'yazılım',
-                child: Text("Yazılım Gereksinimleri"),
-              ),
-              PopupMenuItem(
-                value: 'güvenlik',
-                child: Text("Güvenlik Gereksinimleri"),
-              ),
-            ],
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            label,
-            style: const TextStyle(fontSize: 14, color: Colors.white),
+            ),
           ),
         ),
       ),
@@ -263,6 +300,38 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
             label,
             style: const TextStyle(
               color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static Future<void> loadUserInfo(
+    Function(String, List<String>) onLoaded,
+  ) async {
+    final info = await AuthService.getUserInfo();
+    final userRoles = await AuthService.getUserRoles();
+    onLoaded(info?['username'] ?? 'Bilinmiyor', userRoles);
+  }
+
+  Widget _disabledHeaderButton(String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      child: Tooltip(
+        message: "Bu işlemi yapabilmek için yetkiniz yok.",
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white38,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),

@@ -67,7 +67,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'CSEK Gereksinim Sistemi',
+                  'CSEK Gereksinim Yönetim Sistemi',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,

@@ -36,6 +36,8 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
 
+  file_selector: ^1.0.3
+
   dropdown_search: ^5.0.6
   # HTTP Client
   dio: ^5.4.0

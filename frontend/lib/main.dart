@@ -26,7 +26,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'CSEK Gereksinim Sistemi',
+      title: 'CSEK GYS',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
