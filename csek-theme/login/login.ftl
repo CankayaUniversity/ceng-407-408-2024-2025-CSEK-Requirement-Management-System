@@ -12,7 +12,7 @@
     <form action="${url.loginAction}" method="post">
         <input type="text" name="username" placeholder="Kullanıcı Adı" autofocus>
         <input type="password" name="password" placeholder="Parola">
-        <input type="submit" value="Log In">
+        <input type="submit" value="Giriş Yap">
     </form>
 </div>
 </body>
