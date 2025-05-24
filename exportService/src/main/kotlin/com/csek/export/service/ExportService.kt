@@ -12,7 +12,7 @@ class ExportService {
 
     fun exportBaseline(request: ExportRequest): ByteArray {
 
-        val url = "http://localhost:9500/snapshot/baselines/content" +
+        val url = "http://api-gateway:9500/snapshot/baselines/content" +
                 "?projectName=${request.projectName}&baselineName=${request.baselineName}"
 
         val restTemplate = RestTemplate()
@@ -26,7 +26,7 @@ class ExportService {
     }
 
     fun exportWord(request: ExportRequest): ByteArray {
-        val url = "http://localhost:9500/snapshot/baselines/content" +
+        val url = "http://api-gateway:9500/snapshot/baselines/content" +
                 "?projectName=${request.projectName}&baselineName=${request.baselineName}"
 
         val restTemplate = RestTemplate()
