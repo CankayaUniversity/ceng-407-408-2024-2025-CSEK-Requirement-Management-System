@@ -44,7 +44,6 @@ class SnapshotUploader(private val s3Client: S3Client) {
 
         s3Client.putObject(putRequest, Paths.get(filePath))
 
-        println("✅ S3'e yüklendi: s3://$bucketName/$s3Key")
     }
 
     private fun createMetadata(event: BaselineEvent, folderName: String) {
@@ -70,14 +69,13 @@ class SnapshotUploader(private val s3Client: S3Client) {
         }
 
         if (!doesExist) {
-            println("📄 metadata.json oluşturuluyor...")
             s3Client.putObject(
                 PutObjectRequest.builder().bucket(bucketName).key(s3Key).build(),
                 Paths.get(localFile.path)
             )
-            println("✅ metadata.json yüklendi: s3://$bucketName/$s3Key")
+
         } else {
-            println("ℹ️ metadata.json zaten var, tekrar yazılmadı.")
+            //println("ℹ️ metadata.json zaten var, tekrar yazılmadı.")
         }
     }
 

@@ -17,7 +17,7 @@ class KafkaConsumerConfig {
     @Bean
     fun consumerFactory(): ConsumerFactory<String, BaselineEvent> {
         val config: MutableMap<String, Any> = HashMap()
-        config[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = "localhost:7060"
+        config[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = "kafka:7060"
         config[ConsumerConfig.GROUP_ID_CONFIG] = "snapshot-baseline"
         config[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         config[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = JsonDeserializer::class.java
