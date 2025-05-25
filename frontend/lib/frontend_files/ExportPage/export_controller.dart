@@ -58,42 +58,43 @@ class ExportController {
     return "$name – $date $time";
   }
 
-
   static Future<void> exportBaseline({
     required String projectName,
     required String baselineName,
-    required String format, // 'pdf' or 'word'
-    String? wordStyle, // 'table', 'document', 'book'
-    required String fileName, // e.g. "Raporum.pdf"
+    required String format,
+    String? wordStyle,
+    required String downloadFilename, // ".pdf" veya ".docx" dahil!
   }) async {
-    final uri = Uri.parse("http://localhost:7040/export");
+    final uri = Uri.parse('http://localhost:7040/export');
 
-    final Map<String, dynamic> body = {
-      "projectName": projectName,
-      "baselineName": baselineName,
-      "format": format,
+    final body = {
+      'projectName': projectName,
+      'baselineName': baselineName,
+      'format': format,
     };
 
-    if (format == "word" && wordStyle != null) {
-      body["wordStyle"] = wordStyle;
+    if (wordStyle != null) {
+      body['wordStyle'] = wordStyle;
     }
 
     final response = await http.post(
       uri,
-      headers: {"Content-Type": "application/json"},
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200) {
-      final bytes = response.bodyBytes;
-      final blob = html.Blob([bytes]);
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute("download", fileName)
-        ..click();
-      html.Url.revokeObjectUrl(url);
-    } else {
-      throw Exception("Export başarısız: ${response.statusCode}");
+    if (response.statusCode != 200) {
+      throw Exception("❌ Export başarısız: ${response.statusCode}");
     }
+
+    final blob = html.Blob([response.bodyBytes]);
+    final url = html.Url.createObjectUrlFromBlob(blob);
+
+    final anchor = html.AnchorElement(href: url)
+      ..download = downloadFilename
+      ..click();
+
+    html.Url.revokeObjectUrl(url);
   }
+
 }
