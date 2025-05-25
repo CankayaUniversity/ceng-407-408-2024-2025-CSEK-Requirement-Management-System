@@ -1,21 +1,43 @@
-# CSEK Requirement Management System - First Release
+# 🚀 Project Setup
 
-First, run the following command to build and start all microservices as Docker containers:
+## ✅ Requirements
 
-```bash
-docker-compose up --build
-```
+- Docker & Docker Compose  
+- Flutter SDK  
 
-The frontend is developed using Flutter. To run it locally without CORS issues, launch Chrome with web security disabled using the command below:
+---
 
-```bash
-"C:\Program Files\Google\Chrome\Application\chrome.exe" --disable-web-security --user-data-dir="C:\temp-chrome-31"
-```
+## 🛠 Installation Steps
 
-Then run the following command:
+1. **Extract the `.zip` file** you received.
 
-```bash
-flutter run -d chrome
-```
+2. **Windows users:**  
+   Make sure to add `flutter/bin` to your system's environment variables (PATH).
 
-After completing these steps, the CSEK Requirement Management System First Release will be ready to use.
+3. Open Docker terminal and navigate to the extracted project folder.
+
+4. Run the following command to build and start all backend services:
+
+   ```bash
+   docker compose up --build
+   ```
+
+5. Once all microservices are running:
+
+   - **On Windows:**  
+     Run `Frontend_for_Windows.bat`
+
+   - **On macOS/Linux:**  
+     Run `./Frontend_for_macOS.sh`
+
+The script will automatically launch the Flutter frontend in Chrome.
+
+
+---
+
+## 🔐 Test User Credentials
+
+You can use the following test user credentials to log in:
+
+- **Usernames:** can  /  sarper  /  kivilcim  /  eray
+- **Password:** 123
